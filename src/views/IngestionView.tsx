@@ -9,8 +9,9 @@ import {
   Eye,
   Sparkles,
   ClipboardList,
-  ChevronDown,
-  ChevronUp
+  Download,
+  X,
+  Shield
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import type { NLPItem, EntityType } from '../types';
@@ -32,15 +33,8 @@ export const IngestionView: React.FC = () => {
   const [editTypeInput, setEditTypeInput] = useState<EntityType>('person');
   const [showDocumentPreview, setShowDocumentPreview] = useState(false);
 
-  // Track expanded "Read More" items
-  const [expandedItemIds, setExpandedItemIds] = useState<Record<string, boolean>>({});
-
-  const toggleReadMore = (id: string) => {
-    setExpandedItemIds(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
+  // Modal State for "Read Document" Popup (matching Screenshot media_1787809513553.png)
+  const [selectedModalItem, setSelectedModalItem] = useState<NLPItem | null>(null);
 
   // Smart Engine: Generates EXACTLY ONE SINGLE RECORD per Ingested FIR / Document
   const processDocumentContent = (sourceName: string, textContent: string) => {
@@ -121,6 +115,76 @@ export const IngestionView: React.FC = () => {
       editNLPItem(id, editNameInput.trim(), editTypeInput);
       setEditingItemId(null);
     }
+  };
+
+  const handleDownloadFile = (fileName: string, content: string) => {
+    const element = document.createElement("a");
+    const file = new Blob([content], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = fileName;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  // Helper to structure raw document text for easy reading by third parties
+  const renderStructuredDocumentContent = (rawText: string) => {
+    // Check if text has key-value pairs or markdown headers
+    const lines = rawText.split('\n');
+
+    return (
+      <div className="space-y-6 text-slate-200">
+        {/* Structure Banner */}
+        <div className="p-4 rounded-2xl bg-[#091536] border border-blue-500/40 text-xs font-mono flex items-center justify-between shadow-md">
+          <span className="text-blue-300 font-bold flex items-center space-x-2">
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <span>STRUCTURED AI DOCUMENT BREAKDOWN & EVIDENCE DIGEST</span>
+          </span>
+          <span className="text-[10px] text-slate-400 bg-blue-950 px-2 py-1 rounded-md">VERIFIED PARSED</span>
+        </div>
+
+        {/* Formatted Content Lines */}
+        <div className="space-y-3 font-sans leading-relaxed text-sm">
+          {lines.map((line, idx) => {
+            const trimmed = line.trim();
+            if (!trimmed) return <div key={idx} className="h-2" />;
+
+            // Headings
+            if (trimmed.startsWith('# ') || trimmed.startsWith('## ') || trimmed.startsWith('### ')) {
+              const headingText = trimmed.replace(/^[#\s]+/, '');
+              return (
+                <div key={idx} className="pt-3 pb-1 border-b border-blue-900/50 flex items-center space-x-2">
+                  <Shield className="w-4 h-4 text-[#0088FF]" />
+                  <h4 className="text-base font-extrabold text-white tracking-tight uppercase font-mono">{headingText}</h4>
+                </div>
+              );
+            }
+
+            // Key-Value bold items like **Name:** Ravi Kumar
+            if (trimmed.includes('**') || trimmed.includes(':')) {
+              const parts = trimmed.split(':');
+              if (parts.length >= 2) {
+                const key = parts[0].replace(/[*_]/g, '').trim();
+                const val = parts.slice(1).join(':').replace(/[*_]/g, '').trim();
+                return (
+                  <div key={idx} className="flex flex-col sm:flex-row sm:items-baseline justify-between p-2.5 rounded-xl bg-[#081538]/60 border border-blue-900/40 text-xs">
+                    <span className="font-mono text-blue-400 font-bold uppercase tracking-wider">{key}:</span>
+                    <span className="font-semibold text-white sm:text-right">{val || 'N/A'}</span>
+                  </div>
+                );
+              }
+            }
+
+            // Standard Paragraph
+            return (
+              <p key={idx} className="text-xs text-slate-300 bg-[#020718]/40 p-3 rounded-xl border border-blue-900/20 font-mono">
+                {trimmed.replace(/[*_]/g, '')}
+              </p>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -307,15 +371,12 @@ export const IngestionView: React.FC = () => {
                     <th className="py-3.5 px-4">Extracted Entity</th>
                     <th className="py-3.5 px-4">Entity Type</th>
                     <th className="py-3.5 px-4">Confidence</th>
-                    <th className="py-3.5 px-4">Source Context Snippet & Full Summary</th>
+                    <th className="py-3.5 px-4">Source Context Snippet & Summary</th>
                     <th className="py-3.5 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-blue-900/40 bg-[#040E26]/80 text-slate-200">
                   {nlpItems.map(item => {
-                    const isExpanded = expandedItemIds[item.id] || false;
-                    const fullContent = item.fullTextPayload || uploadedDocumentContent || item.textSnippet;
-
                     return (
                       <tr key={item.id} className="hover:bg-blue-950/60 transition-colors align-top">
                         <td className="py-4.5 px-4 font-bold text-white">
@@ -353,32 +414,20 @@ export const IngestionView: React.FC = () => {
                           {item.confidenceScore}%
                         </td>
                         
-                        {/* Source Context Snippet Column with Interactive Read More Button */}
+                        {/* Source Context Snippet Column with Popup Trigger Button */}
                         <td className="py-4.5 px-4 text-xs text-slate-300 max-w-md leading-relaxed">
                           <div className="space-y-2">
                             <p className="font-medium text-slate-200">
                               "{item.textSnippet}"
                             </p>
 
-                            {/* Read More / Read Full Text Expand Container */}
-                            {isExpanded && (
-                              <div className="p-3.5 rounded-xl bg-[#020718] border border-blue-900/60 text-slate-300 font-mono text-[11px] space-y-1.5 animate-fade-in-down">
-                                <div className="text-[10px] text-[#0088FF] font-bold uppercase border-b border-blue-900/50 pb-1">
-                                  FULL VERBATIM DOCUMENT PAYLOAD
-                                </div>
-                                <div className="whitespace-pre-wrap max-h-48 overflow-y-auto leading-relaxed pt-1">
-                                  {fullContent}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Interactive Read More / Show Less Button */}
+                            {/* Read Document Popup Trigger Button matching Screenshot media_1787809513553.png */}
                             <button
-                              onClick={() => toggleReadMore(item.id)}
-                              className="text-xs font-bold text-[#0088FF] hover:text-blue-300 flex items-center space-x-1 transition-colors font-mono pt-1"
+                              onClick={() => setSelectedModalItem(item)}
+                              className="text-xs font-bold text-[#0088FF] hover:text-blue-300 flex items-center space-x-1.5 transition-colors font-mono pt-1 group"
                             >
-                              <span>{isExpanded ? 'Show Less' : '... Read More / Full Document'}</span>
-                              {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                              <FileText className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform" />
+                              <span>Read Full Document Payload</span>
                             </button>
                           </div>
                         </td>
@@ -436,6 +485,72 @@ export const IngestionView: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* FULL VERBATIM DOCUMENT PAYLOAD MODAL POPUP (matching Screenshot media_1787809513553.png) */}
+      {selectedModalItem && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          <div className="bg-[#040E26] border border-blue-500/50 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden font-sans text-slate-100 animate-scale-up">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-blue-900/60 flex items-center justify-between bg-[#081538]">
+              <div className="flex items-center space-x-2 text-[#0088FF] font-mono text-xs font-extrabold uppercase tracking-wider">
+                <FileText className="w-4 h-4 text-blue-400" />
+                <span>FULL VERBATIM DOCUMENT PAYLOAD</span>
+              </div>
+              <button
+                onClick={() => setSelectedModalItem(null)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-blue-900/50 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content Scroll Area */}
+            <div className="p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
+              {/* Document Banner Card */}
+              <div className="p-4 rounded-2xl bg-[#081538] border border-blue-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-md">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base text-white font-mono tracking-tight">
+                      {selectedModalItem.sourceDocument}
+                    </h3>
+                    <p className="text-xs text-slate-400 font-mono mt-0.5">
+                      Uploaded on May 21, 2025 • 12:45 PM
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleDownloadFile(selectedModalItem.sourceDocument, selectedModalItem.fullTextPayload || uploadedDocumentContent || selectedModalItem.textSnippet)}
+                  className="px-4 py-2 rounded-xl bg-blue-950 hover:bg-blue-900 border border-blue-500/40 text-blue-300 font-bold text-xs font-mono flex items-center space-x-2 transition-all self-start sm:self-auto shadow-md"
+                >
+                  <Download className="w-4 h-4 text-blue-400" />
+                  <span>Download File</span>
+                </button>
+              </div>
+
+              {/* Structured & Understandable Document Text Box */}
+              <div className="p-6 rounded-2xl bg-[#020718] border border-blue-900/60 shadow-inner max-h-[480px] overflow-y-auto">
+                {renderStructuredDocumentContent(
+                  selectedModalItem.fullTextPayload || uploadedDocumentContent || selectedModalItem.textSnippet
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-blue-900/60 bg-[#081538] flex justify-end">
+              <button
+                onClick={() => setSelectedModalItem(null)}
+                className="px-6 py-2.5 rounded-xl bg-blue-950 hover:bg-blue-900 border border-blue-500/50 text-white font-bold font-mono text-xs shadow-lg transition-all"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
