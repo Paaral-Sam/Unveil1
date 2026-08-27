@@ -24,7 +24,7 @@ import { EntityBadge } from '../components/EntityBadge';
 export const IngestionView: React.FC = () => {
   const { nlpItems, approveNLPItem, rejectNLPItem, editNLPItem, addNLPItems } = useApp();
   const [activeSourceTab, setActiveSourceTab] = useState<'FILE' | 'PASTE'>('FILE');
-  const [activeCategory, setActiveCategory] = useState<'FIR' | 'CDR' | 'FINANCIAL' | 'SURVEILLANCE'>('FIR');
+  const [activeCategory, setActiveCategory] = useState<'FIR' | 'CYBER' | 'CDR' | 'FINANCIAL' | 'SURVEILLANCE'>('FIR');
   
   const [pastedText, setPastedText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -37,13 +37,13 @@ export const IngestionView: React.FC = () => {
   const [editTypeInput, setEditTypeInput] = useState<EntityType>('person');
   const [showDocumentPreview, setShowDocumentPreview] = useState(false);
 
-  // Modal State for "Read Document" Popup (matching Screenshot media_1787809513553.png)
+  // Modal State for "Read Document" Popup
   const [selectedModalItem, setSelectedModalItem] = useState<NLPItem | null>(null);
 
-  // Toast for Pipeline Execution Confirmation (Features 2 - 6)
+  // Toast for Pipeline Execution Confirmation
   const [approvalToast, setApprovalToast] = useState<{ show: boolean; name: string } | null>(null);
 
-  // Smart Engine: Generates EXACTLY ONE SINGLE RECORD per Ingested FIR / Document
+  // Smart Engine: Generates EXACTLY ONE SINGLE RECORD per Ingested FIR / Threat Log / Document
   const processDocumentContent = (sourceName: string, textContent: string) => {
     setIsUploading(true);
     setLastUploadedFileName(sourceName);
@@ -53,7 +53,7 @@ export const IngestionView: React.FC = () => {
       // Clean Markdown & excess whitespace
       const cleanText = textContent.replace(/[*#_`]/g, ' ').replace(/\s+/g, ' ').trim();
 
-      // Extract Key Entities for Summary Generation
+      // Extract Key Entities (Persons, IPs, Domains, Wallets, Vehicles)
       const personMatches = cleanText.match(/([A-Z][a-z]+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/g) || [];
       const filteredPersons = Array.from(new Set(personMatches)).filter(n => {
         const lower = n.toLowerCase();
@@ -61,32 +61,36 @@ export const IngestionView: React.FC = () => {
       });
 
       const mainSubject = filteredPersons.length > 0 ? filteredPersons[0] : 'Viktor "The Architect" Rostov';
-      const secondarySubject = filteredPersons.length > 1 ? filteredPersons[1] : 'Ravi Kumar';
 
-      const phoneMatches = cleanText.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g) || [];
-      const vehicleMatches = cleanText.match(/([A-Z]{2}[-\s]?\d{2}[-\s]?[A-Z]{1,2}[-\s]?\d{4}|[A-Z]{2}[-\s]?\d{3}[-\s]?[A-Z]{1,3})/g) || [];
-      const moneyMatches = cleanText.match(/(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g) || [];
+      // Extract IP Addresses & Cyber Assets
+      const ipMatches = cleanText.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g) || [];
+      const domainMatches = cleanText.match(/\b[a-zA-Z0-9.-]+\.(?:onion|com|org|net|io|ru)\b/g) || [];
+      const cryptoMatches = cleanText.match(/\b(?:0x[a-fA-F0-9]{20,40}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})\b/g) || [];
 
-      const phoneSnippet = phoneMatches.length > 0 ? `Intercepted CDR telemetry phone ${phoneMatches[0]}.` : '';
-      const vehicleSnippet = vehicleMatches.length > 0 ? `ANPR camera alert flagged vehicle ${vehicleMatches[0]}.` : '';
-      const moneySnippet = moneyMatches.length > 0 ? `Unsanctioned wire transfer of ${moneyMatches[0]} recorded.` : '';
+      const ipSnippet = ipMatches.length > 0 ? `Target IP ${ipMatches[0]} (Known Tor C2 Server).` : '';
+      const domainSnippet = domainMatches.length > 0 ? `Darknet domain ${domainMatches[0]} flagged.` : '';
+      const cryptoSnippet = cryptoMatches.length > 0 ? `Crypto ransom wallet ${cryptoMatches[0]} logged.` : '';
 
       // Construct ONE complete executive summary for the document
-      const completeSummary = `Complete Intelligence Summary (${sourceName}): Investigation report identifies primary subject ${mainSubject} alongside associate ${secondarySubject}. ${moneySnippet} ${vehicleSnippet} ${phoneSnippet} Full evidentiary transcript logged for analyst verification.`;
+      const completeSummary = `Complete Intelligence & Threat Summary (${sourceName}): Investigation report identifies primary subject ${mainSubject}. ${ipSnippet} ${domainSnippet} ${cryptoSnippet} Full evidentiary transcript logged for analyst verification.`;
+
+      // Determine entity type for record
+      const extractedType: EntityType = ipMatches.length > 0 ? 'ip' : domainMatches.length > 0 ? 'domain' : cryptoMatches.length > 0 ? 'crypto' : 'person';
+      const extractedName = ipMatches.length > 0 ? `${ipMatches[0]} (C2 Server)` : `${mainSubject} (${sourceName.split('.')[0]})`;
 
       // Create EXACTLY 1 Record with complete summary and full document text
       const singleDocumentRecord: NLPItem = {
         id: `nlp-single-doc-${Date.now()}`,
         sourceDocument: sourceName,
-        extractedName: `${mainSubject} (${sourceName.split('.')[0]})`,
-        extractedType: 'person',
-        confidenceScore: 96,
+        extractedName,
+        extractedType,
+        confidenceScore: 97,
         textSnippet: completeSummary,
         fullTextPayload: textContent,
         status: 'PENDING'
       };
 
-      setAiExecutiveSummary(`AI Synthesis for ${sourceName}: Single unified intelligence record generated successfully with 96% confidence score.`);
+      setAiExecutiveSummary(`AI Synthesis for ${sourceName}: Single unified criminal & cyber threat record generated successfully with 97% confidence score.`);
       addNLPItems([singleDocumentRecord]);
       setIsUploading(false);
     }, 800);
@@ -107,7 +111,7 @@ export const IngestionView: React.FC = () => {
   const handlePasteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (pastedText.trim()) {
-      processDocumentContent(`Pasted_FIR_Report_${Date.now().toString().slice(-4)}.txt`, pastedText.trim());
+      processDocumentContent(`Pasted_Intelligence_Report_${Date.now().toString().slice(-4)}.txt`, pastedText.trim());
     }
   };
 
@@ -212,13 +216,13 @@ export const IngestionView: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2 text-xs text-[#0066FF] font-bold uppercase tracking-wider font-mono">
             <UploadCloud className="w-4 h-4 text-blue-600" />
-            <span>REAL DOCUMENT INGESTION & HUMAN-IN-THE-LOOP NLP REVIEW ENGINE</span>
+            <span>REAL DOCUMENT & CYBER LOG INGESTION ENGINE</span>
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">
-            Multi-Source Intelligence Ingestion & Extraction Review
+            Multi-Source Criminal & Cyber Intelligence Ingestion Review
           </h2>
           <p className="text-sm text-slate-500 font-sans mt-0.5">
-            Upload or paste real FIRs, CDR call telemetry, financial SWIFT logs, and approve AI entity extractions to merge into the main graph.
+            Upload or paste real FIRs, Sysmon C2 firewall logs, darknet leaks, crypto SWIFT wires, and approve AI extractions to merge into the main topology graph.
           </p>
         </div>
 
@@ -255,7 +259,7 @@ export const IngestionView: React.FC = () => {
                 <span>FEATURE 2</span>
               </div>
               <p className="text-white text-[11px] font-bold">Extracted 6 Nodes</p>
-              <p className="text-[10px] text-slate-300">Persons, Phones, Vehicles, Accounts</p>
+              <p className="text-[10px] text-slate-300">Persons, IPs, C2 Domains, Crypto</p>
             </div>
 
             <div className="p-3 rounded-2xl bg-blue-950/80 border border-blue-500/40 space-y-1">
@@ -264,7 +268,7 @@ export const IngestionView: React.FC = () => {
                 <span>FEATURE 3</span>
               </div>
               <p className="text-white text-[11px] font-bold">Built 5 Graph Links</p>
-              <p className="text-[10px] text-slate-300">SWIFT, CDR & ANPR Co-location</p>
+              <p className="text-[10px] text-slate-300">Tor C2, DNS Egress & SWIFT</p>
             </div>
 
             <div className="p-3 rounded-2xl bg-purple-950/80 border border-purple-500/40 space-y-1">
@@ -282,7 +286,7 @@ export const IngestionView: React.FC = () => {
                 <span>FEATURE 5</span>
               </div>
               <p className="text-white text-[11px] font-bold">AI Threat Detected</p>
-              <p className="text-[10px] text-slate-300">Circular Fund Wire Spike</p>
+              <p className="text-[10px] text-slate-300">Ransomware C2 Exfiltration</p>
             </div>
 
             <div className="p-3 rounded-2xl bg-amber-950/80 border border-amber-500/40 space-y-1">
@@ -358,17 +362,18 @@ export const IngestionView: React.FC = () => {
             </div>
 
             {/* Source Category Chips */}
-            <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-semibold">
               {[
-                { id: 'FIR', label: 'FIR & Police Reports' },
+                { id: 'FIR', label: 'FIR Reports' },
+                { id: 'CYBER', label: 'Cyber Threat Logs' },
                 { id: 'CDR', label: 'CDR Telemetry' },
-                { id: 'FINANCIAL', label: 'Financial SWIFT' },
-                { id: 'SURVEILLANCE', label: 'Surveillance Reports' }
+                { id: 'FINANCIAL', label: 'SWIFT & Crypto' },
+                { id: 'SURVEILLANCE', label: 'Surveillance' }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveCategory(tab.id as any)}
-                  className={`py-2.5 px-3 rounded-2xl transition-all font-mono font-bold ${
+                  className={`py-2 px-2.5 rounded-2xl transition-all font-mono font-bold text-[11px] ${
                     activeCategory === tab.id
                       ? 'bg-gradient-to-r from-[#EF4444] to-[#0066FF] text-white shadow-lg scale-[1.02]'
                       : 'bg-[#081538] text-slate-400 hover:text-white border border-blue-900/40'
@@ -385,23 +390,23 @@ export const IngestionView: React.FC = () => {
                 <input
                   type="file"
                   onChange={handleFileUpload}
-                  accept=".txt,.pdf,.csv,.json,.docx"
+                  accept=".txt,.pdf,.csv,.json,.docx,.log"
                   className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-20"
                 />
                 <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#EF4444] to-[#0066FF] text-white flex items-center justify-center mx-auto group-hover:scale-110 transition-transform shadow-xl">
                   <UploadCloud className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-white">Click or drag & drop real files here</p>
-                  <p className="text-xs text-slate-300 mt-1 font-mono">Supports PDF, TXT, CSV, JSON, DOCX up to 50MB</p>
+                  <p className="text-base font-bold text-white">Click or drag & drop files here</p>
+                  <p className="text-xs text-slate-300 mt-1 font-mono">Supports PDF, TXT, LOG, CSV, JSON, DOCX up to 50MB</p>
                 </div>
               </div>
             ) : (
-              /* Mode 2: Paste FIR Text Directly */
+              /* Mode 2: Paste Text Directly */
               <form onSubmit={handlePasteSubmit} className="space-y-3">
                 <textarea
                   rows={6}
-                  placeholder="Paste FIR text, police report, or CDR telemetry transcript here..."
+                  placeholder="Paste FIR text, Sysmon C2 threat log, darkweb leak, or CDR telemetry transcript here..."
                   value={pastedText}
                   onChange={e => setPastedText(e.target.value)}
                   className="w-full bg-[#020718] border border-blue-500/40 focus:border-[#0088FF] rounded-2xl p-4 text-xs text-white placeholder-slate-400 font-mono focus:outline-none"
@@ -412,7 +417,7 @@ export const IngestionView: React.FC = () => {
                   className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#EF4444] to-[#0066FF] text-white font-bold text-xs shadow-xl flex items-center justify-center space-x-2 font-mono"
                 >
                   <ClipboardList className="w-4 h-4" />
-                  <span>Parse & Summarize Pasted FIR</span>
+                  <span>Parse & Summarize Intelligence</span>
                 </button>
               </form>
             )}
@@ -438,8 +443,8 @@ export const IngestionView: React.FC = () => {
           <div className="space-y-5 flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-blue-900/40 pb-4">
               <div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Pending AI NLP Extractions Review Table</h3>
-                <p className="text-xs text-slate-300 mt-1">Approve, edit, or reject AI-discovered entities before merging to main graph</p>
+                <h3 className="text-xl font-bold text-white tracking-tight">Pending AI Extractions Review Table</h3>
+                <p className="text-xs text-slate-300 mt-1">Approve, edit, or reject AI-discovered entities (persons, IPs, domains, wallets) before merging to main graph</p>
               </div>
               <span className="px-4 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-mono font-bold self-start sm:self-auto">
                 {nlpItems.filter(i => i.status === 'PENDING').length} Pending Review
@@ -482,11 +487,15 @@ export const IngestionView: React.FC = () => {
                             >
                               <option value="person">PERSON</option>
                               <option value="organization">ORGANIZATION</option>
+                              <option value="ip">IP ADDRESS</option>
+                              <option value="domain">DARKNET DOMAIN</option>
+                              <option value="crypto">CRYPTO WALLET</option>
+                              <option value="malware">MALWARE</option>
+                              <option value="cyberattack">CYBERATTACK</option>
                               <option value="vehicle">VEHICLE</option>
                               <option value="phone">PHONE</option>
                               <option value="account">ACCOUNT</option>
                               <option value="location">LOCATION</option>
-                              <option value="event">EVENT</option>
                             </select>
                           ) : (
                             <EntityBadge type={item.extractedType} name={item.extractedType.toUpperCase()} />
@@ -496,14 +505,13 @@ export const IngestionView: React.FC = () => {
                           {item.confidenceScore}%
                         </td>
                         
-                        {/* Source Context Snippet Column with Popup Trigger Button */}
+                        {/* Source Context Snippet Column */}
                         <td className="py-4.5 px-4 text-xs text-slate-300 max-w-md leading-relaxed">
                           <div className="space-y-2">
                             <p className="font-medium text-slate-200">
                               "{item.textSnippet}"
                             </p>
 
-                            {/* Read Document Popup Trigger Button matching Screenshot media_1787809513553.png */}
                             <button
                               onClick={() => setSelectedModalItem(item)}
                               className="text-xs font-bold text-[#0088FF] hover:text-blue-300 flex items-center space-x-1.5 transition-colors font-mono pt-1 group"
@@ -568,7 +576,7 @@ export const IngestionView: React.FC = () => {
         </div>
       </div>
 
-      {/* FULL VERBATIM DOCUMENT PAYLOAD MODAL POPUP (matching Screenshot media_1787809513553.png) */}
+      {/* FULL VERBATIM DOCUMENT PAYLOAD MODAL POPUP */}
       {selectedModalItem && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-fade-in font-sans text-slate-100">
           <div className="bg-[#040E26] border border-blue-500/50 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-scale-up">

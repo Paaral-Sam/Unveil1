@@ -3,17 +3,17 @@ import type { Case, Entity, Relationship, NLPItem, PatternAnomaly, TimelineEvent
 export const MOCK_CASES: Case[] = [
   {
     id: 'case-2291',
-    title: 'Operativa Syndicate - Cross-Border Narcotics & Laundering',
+    title: 'Operativa Syndicate - Cross-Border Cybercrime & Laundering',
     caseNumber: 'CASE-2026-2291',
     status: 'UNDER_INVESTIGATION',
     threatLevel: 'CRITICAL',
     leadInvestigator: 'Det. Insp. Marcus Vance (Badge #8804)',
-    entityCount: 42,
-    relationshipCount: 87,
+    entityCount: 48,
+    relationshipCount: 95,
     lastUpdated: '2026-08-25T14:30:00Z',
-    description: 'Multi-jurisdictional syndicate operating illicit wire transfers, vehicle smuggling networks, and burner phone communications in Metro Sector 4.',
-    targetCell: 'Red Horizon Operations Cell',
-    tags: ['Money Laundering', 'Narcotics', 'CDR Clustering', 'High Priority']
+    description: 'Multi-jurisdictional syndicate operating ransomware C2 infrastructure, darknet data exfiltration portals, crypto mixers, and illicit shell wire transfers.',
+    targetCell: 'Red Horizon Cyber & Cartel Cell',
+    tags: ['Money Laundering', 'Cybercrime', 'Ransomware', 'Crypto Mixer', 'High Priority']
   },
   {
     id: 'case-1048',
@@ -245,38 +245,84 @@ export const MOCK_ENTITIES: Entity[] = [
     attributes: { 'Amount': '$450,000.00', 'Timestamp': '2026-08-24 23:14:02 UTC' }
   },
   {
-    id: 'ent-11',
-    name: 'Marco "Zero" Rossi',
-    type: 'person',
-    riskScore: 71,
-    threatLevel: 'MEDIUM',
-    confidenceScore: 85,
-    sourceTag: 'SOCMINT',
-    centrality: { degree: 7, betweenness: 0.28, pageRank: 0.029 },
-    aliases: ['Agent Zero', 'M. Rossi'],
-    phone: '+1 (555) 321-9988',
-    coordinates: [40.7282, -73.9942],
-    locationName: 'SoHo, NYC',
-    associatedCaseIds: ['case-2291'],
-    notesCount: 4,
-    avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
-    roleDescription: 'Logistics Liaison & Driver',
-    attributes: { 'Social Handle': '@m_rossi_nyc' }
+    id: 'ent-13',
+    name: '185.220.101.45 (Tor C2 Node)',
+    type: 'ip',
+    riskScore: 98,
+    threatLevel: 'CRITICAL',
+    confidenceScore: 99,
+    sourceTag: 'CYBER_INTEL',
+    centrality: { degree: 17, betweenness: 0.85, pageRank: 0.088 },
+    ipAddress: '185.220.101.45',
+    locationName: 'Bucharest, Romania (Tor Exit Node)',
+    associatedCaseIds: ['case-2291', 'case-4412'],
+    notesCount: 12,
+    aiFlags: ['Active Command & Control Server', 'Ransomware Beaconing Destination', 'High Egress Egress'],
+    roleDescription: 'Primary Cyber Attack Command & Control Hub',
+    attributes: { 'ASN': 'AS208091', 'Protocol': 'HTTPS Encrypted C2 Tunnel' }
   },
   {
-    id: 'ent-12',
-    name: 'Port Safe Logistics Inc.',
-    type: 'organization',
-    riskScore: 68,
-    threatLevel: 'MEDIUM',
-    confidenceScore: 90,
-    sourceTag: 'FIR',
-    centrality: { degree: 6, betweenness: 0.22, pageRank: 0.024 },
-    associatedCaseIds: ['case-1048'],
-    notesCount: 3,
-    locationName: 'Brooklyn Navy Yard',
-    coordinates: [40.7003, -73.9712],
-    attributes: { 'Status': 'Active Freight Forwarder' }
+    id: 'ent-14',
+    name: 'darknet-exfiltrate-vault.onion',
+    type: 'domain',
+    riskScore: 95,
+    threatLevel: 'CRITICAL',
+    confidenceScore: 97,
+    sourceTag: 'DARKNET_LEAK',
+    centrality: { degree: 13, betweenness: 0.74, pageRank: 0.071 },
+    domainName: 'darknet-exfiltrate-vault.onion',
+    associatedCaseIds: ['case-2291', 'case-4412'],
+    notesCount: 8,
+    aiFlags: ['Tor Hidden Service', 'Corporate Data Leak Portal', 'Extortion Storage Vault'],
+    roleDescription: 'Stolen Corporate Data Storage & Extortion Portal',
+    attributes: { 'Darkweb Protocol': 'v3 Onion Service', 'Indexed Data': '450GB Exfiltrated SQL Dump' }
+  },
+  {
+    id: 'ent-15',
+    name: '0x71C765f928...49A (Tether USDT)',
+    type: 'crypto',
+    riskScore: 97,
+    threatLevel: 'CRITICAL',
+    confidenceScore: 99,
+    sourceTag: 'BLOCKCHAIN_SWIFT',
+    centrality: { degree: 15, betweenness: 0.78, pageRank: 0.079 },
+    cryptoWallet: '0x71C765f928aA192B45e119420049A',
+    associatedCaseIds: ['case-2291', 'case-4412'],
+    notesCount: 10,
+    aiFlags: ['Ransom Payment Recipient Wallet', 'Tornado Cash Mixer Hops', 'High USDT Inflow'],
+    roleDescription: 'Primary Cyber Extortion Ransom Payment Wallet',
+    attributes: { 'Blockchain': 'Ethereum / TRON USDT', 'Total Received': '$1,850,000 USDT' }
+  },
+  {
+    id: 'ent-16',
+    name: 'LockBit 3.0 Ransomware Binary',
+    type: 'malware',
+    riskScore: 99,
+    threatLevel: 'CRITICAL',
+    confidenceScore: 100,
+    sourceTag: 'FIREWALL_LOG',
+    centrality: { degree: 14, betweenness: 0.76, pageRank: 0.077 },
+    malwareHash: 'a891f92c10b429188e4019a84210b490',
+    associatedCaseIds: ['case-2291', 'case-4412'],
+    notesCount: 15,
+    aiFlags: ['Automated Endpoint Encryptor', 'Shadow Copy Wiping Executable', 'Credential Harvester'],
+    roleDescription: 'Destructive Encryptor Binary & Stealer',
+    attributes: { 'SHA-256': 'a891f92c10b429188e4019a84210b490a891f92c10b429188e4019a84210b490', 'Family': 'LockBit 3.0 Black' }
+  },
+  {
+    id: 'ent-17',
+    name: 'Spear-Phishing OAuth Exploit Event',
+    type: 'cyberattack',
+    riskScore: 91,
+    threatLevel: 'HIGH',
+    confidenceScore: 94,
+    sourceTag: 'CYBER_INTEL',
+    centrality: { degree: 11, betweenness: 0.58, pageRank: 0.052 },
+    associatedCaseIds: ['case-2291'],
+    notesCount: 6,
+    aiFlags: ['Targeted Executive Phishing', 'OAuth Token Theft', 'Initial Access Vector'],
+    roleDescription: 'Initial Network Penetration Vector',
+    attributes: { 'Attack Vector': 'Malicious Executive Phishing Email', 'Target Account': 'cfo@apexglobal.com' }
   }
 ];
 
@@ -318,321 +364,146 @@ export const MOCK_RELATIONSHIPS: Relationship[] = [
     thickness: 5,
     amount: '$2,450,000 Cumulative',
     sourceDoc: 'Chase Bank Records Subpoena #882',
-    aiFlagged: true,
-    aiReason: 'High frequency wire transfers initiated within 10-min window'
+    aiFlagged: false
   },
   {
-    id: 'rel-4',
-    source: 'ent-7',
-    target: 'ent-9',
-    type: 'FINANCIAL',
-    label: 'Wire Outflow ($450,000)',
-    confidence: 92,
-    verified: true,
-    thickness: 4,
-    amount: '$450,000.00',
-    lastTimestamp: '2026-08-24T23:14:02Z',
-    sourceDoc: 'SWIFT Message MT103 Ref #SW-99120',
-    aiFlagged: true,
-    aiReason: 'Circular transfer detected to offshore entity'
-  },
-  {
-    id: 'rel-5',
+    id: 'rel-16',
     source: 'ent-1',
-    target: 'ent-4',
-    type: 'COMMUNICATION',
-    label: 'Encrypted Voice Calls (CDR)',
-    confidence: 88,
-    verified: true,
-    thickness: 3,
-    frequency: '42 Call Logs (Avg 45s duration)',
-    lastTimestamp: '2026-08-25T01:30:00Z',
-    sourceDoc: 'Telco Intercept CDR Batch #44',
-    aiFlagged: true,
-    aiReason: 'Pre-incident short-duration call burst before Pier 42 meetup'
-  },
-  {
-    id: 'rel-6',
-    source: 'ent-4',
-    target: 'ent-8',
-    type: 'COMMUNICATION',
-    label: 'SMS & Call Traffic',
-    confidence: 85,
-    verified: true,
-    thickness: 3,
-    frequency: '18 Encrypted SMS',
-    sourceDoc: 'Telco Intercept CDR Batch #44',
-    aiFlagged: false
-  },
-  {
-    id: 'rel-7',
-    source: 'ent-8',
-    target: 'ent-5',
-    type: 'OWNERSHIP',
-    label: 'Registered Driver / User',
-    confidence: 94,
-    verified: true,
-    thickness: 3,
-    sourceDoc: 'DMV Registration Lookup NY-771-X99',
-    aiFlagged: false
-  },
-  {
-    id: 'rel-8',
-    source: 'ent-5',
-    target: 'ent-6',
-    type: 'CO_LOCATION',
-    label: 'ALPR Surveillance Camera Hit',
-    confidence: 91,
-    verified: true,
-    thickness: 4,
-    frequency: '7 Camera Hits (02:00 - 04:30 AM)',
-    lastTimestamp: '2026-08-24T03:15:00Z',
-    sourceDoc: 'NYPD ALPR Network Log #9910',
-    aiFlagged: true,
-    aiReason: 'Unusual late night warehouse docking activity'
-  },
-  {
-    id: 'rel-9',
-    source: 'ent-1',
-    target: 'ent-8',
-    type: 'ASSOCIATION',
-    label: 'Enforcer Command Link',
-    confidence: 93,
-    verified: true,
-    thickness: 4,
-    sourceDoc: 'Surveillance Report SURV-2026-09',
-    aiFlagged: false
-  },
-  {
-    id: 'rel-10',
-    source: 'ent-11',
-    target: 'ent-5',
-    type: 'ASSOCIATION',
-    label: 'Spotted Driving Vehicle',
-    confidence: 76,
-    verified: false,
-    thickness: 2,
-    sourceDoc: 'SOCMINT Photo Tag matching',
-    aiFlagged: true,
-    aiReason: 'Inferred link via Facial Recognition match on Instagram post'
-  },
-  {
-    id: 'rel-11',
-    source: 'ent-3',
-    target: 'ent-6',
-    type: 'OWNERSHIP',
-    label: 'Property Lease Holder',
-    confidence: 97,
-    verified: true,
-    thickness: 3,
-    sourceDoc: 'County Deed Registry Doc #88491',
-    aiFlagged: false
-  },
-  {
-    id: 'rel-12',
-    source: 'ent-7',
-    target: 'ent-10',
-    type: 'FINANCIAL',
-    label: 'Generated Transaction Event',
+    target: 'ent-13',
+    type: 'C2_COMMUNICATION',
+    label: 'Encrypted C2 Command Tunnel',
     confidence: 99,
     verified: true,
     thickness: 5,
-    amount: '$450,000.00',
+    sourceDoc: 'Sysmon_Event_3_Firewall.log',
     aiFlagged: true,
-    aiReason: 'Transaction flagged as SAR trigger'
+    aiReason: 'Ransomware C2 Command Tunneling'
+  },
+  {
+    id: 'rel-17',
+    source: 'ent-13',
+    target: 'ent-14',
+    type: 'DATA_EXFILTRATION',
+    label: '50GB Darknet DNS Egress Tunnel',
+    confidence: 97,
+    verified: true,
+    thickness: 5,
+    sourceDoc: 'Zeek_DNS_Tunneling.log',
+    aiFlagged: true,
+    aiReason: 'Massive Exfiltration to Darkweb Vault'
+  },
+  {
+    id: 'rel-18',
+    source: 'ent-15',
+    target: 'ent-3',
+    type: 'CRYPTO_RANSOM',
+    label: '$1,250,000 USDT Ransom Cashout',
+    confidence: 98,
+    verified: true,
+    thickness: 5,
+    sourceDoc: 'Chainalysis_Blockchain_Trace.csv',
+    aiFlagged: true,
+    aiReason: 'Crypto Ransom Payment to Shell Company'
+  },
+  {
+    id: 'rel-19',
+    source: 'ent-16',
+    target: 'ent-13',
+    type: 'MALWARE_INFECTION',
+    label: 'LockBit Beaconing & RSA Key Sync',
+    confidence: 99,
+    verified: true,
+    thickness: 5,
+    sourceDoc: 'CrowdStrike_EDR_Alert_991.json',
+    aiFlagged: true,
+    aiReason: 'Active Ransomware Encryption Execution'
   }
 ];
 
 export const MOCK_NLP_ITEMS: NLPItem[] = [
   {
     id: 'nlp-1',
-    textSnippet: 'According to Confidential Informant CI-409, Viktor "The Architect" Rostov instructed Elena Rostova to wire funds to Chase Account #****-9921 before midnight.',
-    extractedName: 'Viktor "The Architect" Rostov',
+    sourceDocument: 'FIR_Report_2026_0991.txt',
+    extractedName: 'Ravi Kumar (Suspect)',
     extractedType: 'person',
-    confidenceScore: 96,
-    sourceDocument: 'FIR-2026-8891 (Page 4, Para 2)',
+    confidenceScore: 94,
+    textSnippet: 'Witness statement confirms suspect Ravi Kumar was spotted handing over a black briefcase containing $50,000 cash near Pier 42 Marine Terminal.',
+    fullTextPayload: `FIRST INFORMATION REPORT (Under Section 154 Cr.P.C.)
+District: Metro Sector 4 | Police Station: Central Intelligence Cell | Year: 2026 | FIR No: 0991/2026
+Date & Time of Occurrence: 24/08/2026 at 23:15 Hours
+
+1. Name of Suspect: Ravi Kumar
+2. Offence Alleged: Criminal Conspiracy, Money Laundering, Illicit Cash Handover
+3. Investigation Details: On the night of 24th August 2026, surveillance team Delta observed suspect Ravi Kumar arriving at Pier 42 Marine Terminal in a black sedan (License Plate NY-771-X99). Suspect met with Elena Rostova and transferred a black hard-shell case containing approximately $50,000 in unrecorded currency notes. Telemetry pings from cell tower #402 confirm presence of burner phone +1-555-019-4821 at exact scene.`,
     status: 'PENDING'
   },
   {
     id: 'nlp-2',
-    textSnippet: 'Vehicle NY-771-X99 was observed leaving Pier 42 Terminal at 03:15 AM heading toward Manhattan financial district.',
-    extractedName: 'NY-771-X99',
-    extractedType: 'vehicle',
-    confidenceScore: 92,
-    sourceDocument: 'Surveillance Log SURV-2026-09',
+    sourceDocument: 'Sysmon_Firewall_C2_Alert.log',
+    extractedName: '185.220.101.45 (Tor C2 Server)',
+    extractedType: 'ip',
+    confidenceScore: 99,
+    textSnippet: 'EDR alert detected endpoint PC-EXEC-01 establishing HTTPS SSH tunnel to external Tor C2 IP 185.220.101.45 exfiltrating 50GB DNS payload.',
+    fullTextPayload: `CYBERSECURITY SIEM / EDR THREAT DETECTION INCIDENT
+Alert ID: SEC-2026-99201 | Severity: CRITICAL | System: Sysmon Kernel Driver
+Event Type: Process Access / Network Connection (Sysmon Event ID 3)
+
+Source Endpoint: Workstation PC-EXEC-01 (Domain Controller Admin)
+Destination IP: 185.220.101.45 (Known Tor Exit Node / LockBit C2 Server)
+Destination Domain: darknet-exfiltrate-vault.onion
+Data Transfer Volume: 51.4 GB via DNS Tunneling Protocol (Port 53 / 443)
+Malware Process: LockBit_3.0_Payload.exe (SHA-256: a891f92c10b429188e4019a84210b490)
+Action Taken: Endpoint Quarantined by SOC Automation.`,
     status: 'PENDING'
-  },
-  {
-    id: 'nlp-3',
-    textSnippet: 'Intercepted SMS from +1-555-019-4821 mentioned: "The shipment at Grand Cayman #881 is confirmed for Tuesday".',
-    extractedName: 'Grand Cayman #881',
-    extractedType: 'account',
-    confidenceScore: 78,
-    sourceDocument: 'Telco Intercept CDR Batch #44',
-    status: 'PENDING'
-  },
-  {
-    id: 'nlp-4',
-    textSnippet: 'Dmitri Volkov signed lease agreement for Apex Global Holdings Ltd on August 10th at Brooklyn Navy Yard.',
-    extractedName: 'Dmitri Volkov',
-    extractedType: 'person',
-    confidenceScore: 89,
-    sourceDocument: 'Lease Agreement Doc #88491',
-    status: 'APPROVED'
-  },
-  {
-    id: 'nlp-5',
-    textSnippet: 'A bank transfer of $450,000 was executed from Chase Account #****-9921 to Cayman Islands Offshore Trust.',
-    extractedName: '$450,000 Transfer',
-    extractedType: 'event',
-    confidenceScore: 95,
-    sourceDocument: 'SWIFT MT103 Log',
-    status: 'APPROVED'
   }
 ];
 
 export const MOCK_PATTERNS: PatternAnomaly[] = [
   {
-    id: 'pat-1',
+    id: 'pat-101',
     caseId: 'case-2291',
-    title: 'Circular Offshore Funds Routing',
-    type: 'CIRCULAR_FUNDS',
+    title: 'Ransomware C2 Beaconing & 50GB DNS Exfiltration',
+    type: 'CYBER_EXFILTRATION',
     severity: 'HIGH',
-    description: 'Chase Account #****-9921 routed $450,000 to Offshore Trust Cayman #881, which immediately recirculated $420,000 back to Apex Global Holdings via shell invoices.',
-    entitiesInvolved: ['ent-7', 'ent-9', 'ent-3', 'ent-2'],
-    timestamp: '2026-08-25T02:14:00Z',
-    evidenceSnippet: 'Wire MT103 Ref #SW-99120 paired with SWIFT MT103 Ref #SW-99124 within 3 hours.',
-    status: 'UNREVIEWED'
+    description: 'Automated detection of malware process beaconing to Tor C2 server 185.220.101.45 followed by 50GB DNS egress transfer to darknet-exfiltrate-vault.onion.',
+    entitiesInvolved: ['185.220.101.45 (Tor C2 Node)', 'darknet-exfiltrate-vault.onion', 'LockBit 3.0 Ransomware Binary'],
+    timestamp: '2026-08-25T14:10:05Z',
+    status: 'NEW',
+    evidenceSnippet: 'Sysmon Event ID 3: 50.4GB outbound DNS tunnel payload to 185.220.101.45 (Tor C2 Destination).'
   },
   {
-    id: 'pat-2',
+    id: 'pat-102',
     caseId: 'case-2291',
-    title: 'Pre-Event Burner Phone Call Burst',
-    type: 'CALL_SPIKE_PRE_EVENT',
+    title: 'Crypto Mixer Cashout Funneling (Tether USDT)',
+    type: 'CRYPTO_LAUNDERING',
     severity: 'HIGH',
-    description: 'Burner phone +1-555-019-4821 exhibited a 600% spike in call frequency to Dmitri Volkov 30 minutes prior to ALPR hit at Pier 42 Depot.',
-    entitiesInvolved: ['ent-4', 'ent-8', 'ent-5', 'ent-6'],
-    timestamp: '2026-08-24T02:45:00Z',
-    evidenceSnippet: '14 calls recorded between 02:15 AM and 02:45 AM, all lasting under 30 seconds.',
-    status: 'INVESTIGATING'
-  },
-  {
-    id: 'pat-3',
-    caseId: 'case-2291',
-    title: 'Co-Location of Key Suspects at Unregistered Facility',
-    type: 'CO_LOCATION_CLUSTER',
-    severity: 'MEDIUM',
-    description: 'Cell tower ping data indicates Viktor Rostov, Elena Rostova, and Marco Rossi were co-located at Pier 42 Terminal for 120 minutes.',
-    entitiesInvolved: ['ent-1', 'ent-2', 'ent-11', 'ent-6'],
-    timestamp: '2026-08-23T23:00:00Z',
-    evidenceSnippet: 'Cell Sector 401-B overlapping pings recorded on 3 distinct IMEI numbers.',
-    status: 'UNREVIEWED'
-  },
-  {
-    id: 'pat-4',
-    caseId: 'case-4412',
-    title: 'Rapid Asset Liquidation & Crypto Conversion',
-    type: 'RAPID_ASSET_DISPOSAL',
-    severity: 'HIGH',
-    description: 'Apex Global Holdings account liquidated $1.2M in short term paper and purchased USDT via OTC desk.',
-    entitiesInvolved: ['ent-3', 'ent-7'],
-    timestamp: '2026-08-24T14:10:00Z',
-    evidenceSnippet: 'Bank statement line item OTC-CRYPTO-DESK-441.',
-    status: 'UNREVIEWED'
+    description: 'Ransomware wallet 0x71C7...49A transferred 1,250,000 USDT through 4 Tornado Cash mixing hops into Apex Global Holdings bank account.',
+    entitiesInvolved: ['0x71C765f928...49A (Tether USDT)', 'Apex Global Holdings Ltd (Shell Co)'],
+    timestamp: '2026-08-25T11:45:00Z',
+    status: 'NEW',
+    evidenceSnippet: 'Chainalysis Blockchain Trace: $1,250,000 USDT cashout from ransomware wallet into JPMorgan Chase Account #****-9921.'
   }
 ];
 
 export const MOCK_TIMELINE_EVENTS: TimelineEvent[] = [
   {
     id: 'evt-1',
-    caseId: 'case-2291',
-    entityId: 'ent-1',
-    timestamp: '2026-08-24T14:00:00Z',
-    title: 'Inter-Agency Intelligence Brief Filed',
-    type: 'Intel Report',
-    sourceTag: 'INTEL_REPORT',
-    locationName: 'NYPD Counterterror Task Force',
-    description: 'Dossier updated linking Viktor Rostov to Apex Global Holdings offshore entity structure.',
-    linkedEntityIds: ['ent-1', 'ent-3']
-  },
-  {
-    id: 'evt-2',
-    caseId: 'case-2291',
-    entityId: 'ent-7',
-    timestamp: '2026-08-24T23:14:00Z',
-    title: 'Wire Transfer Outflow ($450,000)',
-    type: 'Financial Wire',
-    sourceTag: 'FINANCIAL',
-    locationName: 'Wall Street Branch portal',
-    description: '$450,000 sent from Chase Account #****-9921 to Cayman Islands Offshore Trust.',
-    linkedEntityIds: ['ent-7', 'ent-9', 'ent-2']
-  },
-  {
-    id: 'evt-3',
-    caseId: 'case-2291',
-    entityId: 'ent-5',
-    timestamp: '2026-08-25T03:15:00Z',
-    title: 'ALPR Camera Hit at Pier 42 Terminal',
-    type: 'Surveillance Hit',
-    sourceTag: 'SURVEILLANCE',
-    coordinates: [40.7101, -73.9785],
-    locationName: 'Pier 42 Marine Terminal',
-    description: 'Black SUV (NY-771-X99) recorded entering restricted dock section.',
-    linkedEntityIds: ['ent-5', 'ent-6', 'ent-8']
-  },
-  {
-    id: 'evt-4',
-    caseId: 'case-2291',
-    entityId: 'ent-4',
-    timestamp: '2026-08-25T09:30:00Z',
-    title: 'Encrypted CDR Call Burst Intercepted',
-    type: 'CDR Intercept',
-    sourceTag: 'CDR',
-    locationName: 'Cell Sector Metro 4',
-    description: '14 rapid calls recorded between Burner MSISDN +1-555-019-4821 and Dmitri Volkov.',
-    linkedEntityIds: ['ent-4', 'ent-8']
+    timestamp: '2026-08-24T23:14:02Z',
+    title: 'Ransomware C2 Tunneling & $1.25M Crypto Cashout',
+    description: 'C2 Server 185.220.101.45 received 50GB exfiltrated corporate data while ransomware wallet 0x71C7...49A initiated $1.25M Tether transfer to Apex Shell Bank Account.',
+    type: 'CYBERATTACK_AND_FINANCIAL',
+    locationName: 'Bucharest Tor Node ↔ NYC Financial District',
+    entityId: 'ent-13'
   }
 ];
 
 export const MOCK_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-101',
-    timestamp: '2026-08-25T19:10:04Z',
-    user: 'Analyst J. Vance (Badge #8804)',
-    role: 'Lead Analyst',
-    action: 'GRAPH_EXPORT_PDF',
-    target: 'Network Graph Case #2291',
-    caseId: 'CASE-2026-2291',
-    ipAddress: '10.240.18.42'
-  },
-  {
-    id: 'log-102',
-    timestamp: '2026-08-25T18:45:12Z',
-    user: 'Analyst J. Vance (Badge #8804)',
-    role: 'Lead Analyst',
-    action: 'NLP_ENTITY_APPROVE',
-    target: 'Extracted Entity: Dmitri Volkov',
-    caseId: 'CASE-2026-2291',
-    ipAddress: '10.240.18.42'
-  },
-  {
-    id: 'log-103',
-    timestamp: '2026-08-25T16:20:00Z',
-    user: 'Supervisor M. Sterling',
-    role: 'Supervisor',
-    action: 'CASE_STATUS_CHANGE',
-    target: 'Case #2291 → UNDER_INVESTIGATION',
-    caseId: 'CASE-2026-2291',
-    ipAddress: '10.240.12.09'
-  },
-  {
-    id: 'log-104',
-    timestamp: '2026-08-25T14:02:30Z',
-    user: 'Investigator S. Chen',
-    role: 'Investigator',
-    action: 'ENTITY_DOSSIER_VIEW',
-    target: 'Viktor Rostov (ent-1)',
-    caseId: 'CASE-2026-2291',
-    ipAddress: '10.240.19.88'
+    timestamp: '2026-08-25T14:15:00Z',
+    user: 'Det. Insp. Marcus Vance',
+    action: 'CYBER_C2_INVESTIGATION',
+    target: 'Tor Node 185.220.101.45',
+    ipAddress: '10.240.8.12'
   }
 ];

@@ -54,15 +54,51 @@ export const NetworkGraphView: React.FC = () => {
       { id: 'ent-4', name: 'NY-771-X99', tag: 'VE', subtitle: 'Black Range Rover · getaway', risk: 93, riskColor: '#EF4444', color: '#FEF3C7', textColor: '#D97706', type: 'vehicle', coords: { x: 580, y: 490 } },
       { id: 'ent-5', name: '+1-555-019-4821', tag: 'PH', subtitle: 'Encrypted CDR telemetry phone', risk: 84, riskColor: '#EF4444', color: '#F3E8FF', textColor: '#9333EA', type: 'phone', coords: { x: 400, y: 80 } },
       { id: 'ent-6', name: 'Pier 42 Terminal (Geofence)', tag: 'LO', subtitle: 'High-volume meeting cluster', risk: 82, riskColor: '#EF4444', color: '#E0E7FF', textColor: '#4F46E5', type: 'location', coords: { x: 620, y: 310 } },
+      { id: 'ent-13', name: '185.220.101.45 (Tor C2 Node)', tag: 'IP', subtitle: 'Ransomware C2 Command Server', risk: 98, riskColor: '#EF4444', color: '#E0E7FF', textColor: '#4338CA', type: 'ip', coords: { x: 120, y: 320 } },
+      { id: 'ent-14', name: 'darknet-exfiltrate-vault.onion', tag: 'DM', subtitle: 'Stolen Data Exfiltration Vault', risk: 95, riskColor: '#EF4444', color: '#CCFBF1', textColor: '#0F766E', type: 'domain', coords: { x: 300, y: 340 } },
+      { id: 'ent-15', name: '0x71C765f928...49A (USDT)', tag: 'CW', subtitle: 'Ransomware Cashout Wallet', risk: 97, riskColor: '#EF4444', color: '#FEF3C7', textColor: '#B45309', type: 'crypto', coords: { x: 480, y: 360 } },
+      { id: 'ent-16', name: 'LockBit 3.0 Ransomware Binary', tag: 'MW', subtitle: 'Destructive Encryptor Binary', risk: 99, riskColor: '#EF4444', color: '#FCE7F3', textColor: '#BE185D', type: 'malware', coords: { x: 260, y: 80 } },
     ];
 
     // Merge AppContext Entities
     const extraNodes: RenderNode[] = entities
       .filter(e => !defaultNodes.some(dn => dn.id === e.id || dn.name.toLowerCase() === e.name.toLowerCase()))
       .map((e, idx) => {
-        const tag = e.type === 'person' ? 'PE' : e.type === 'phone' ? 'PH' : e.type === 'vehicle' ? 'VE' : e.type === 'account' ? 'AC' : e.type === 'location' ? 'LO' : 'OR';
-        const color = e.type === 'person' ? '#FEE2E2' : e.type === 'phone' ? '#F3E8FF' : e.type === 'vehicle' ? '#FEF3C7' : e.type === 'account' ? '#E0F2FE' : '#E0E7FF';
-        const textColor = e.type === 'person' ? '#DC2626' : e.type === 'phone' ? '#9333EA' : e.type === 'vehicle' ? '#D97706' : e.type === 'account' ? '#0284C7' : '#4F46E5';
+        const tag =
+          e.type === 'person' ? 'PE' :
+          e.type === 'phone' ? 'PH' :
+          e.type === 'vehicle' ? 'VE' :
+          e.type === 'account' ? 'AC' :
+          e.type === 'location' ? 'LO' :
+          e.type === 'ip' ? 'IP' :
+          e.type === 'domain' ? 'DM' :
+          e.type === 'crypto' ? 'CW' :
+          e.type === 'cyberattack' ? 'CY' :
+          e.type === 'malware' ? 'MW' : 'OR';
+
+        const color =
+          e.type === 'person' ? '#FEE2E2' :
+          e.type === 'phone' ? '#F3E8FF' :
+          e.type === 'vehicle' ? '#FEF3C7' :
+          e.type === 'account' ? '#E0F2FE' :
+          e.type === 'location' ? '#E0E7FF' :
+          e.type === 'ip' ? '#E0E7FF' :
+          e.type === 'domain' ? '#CCFBF1' :
+          e.type === 'crypto' ? '#FEF3C7' :
+          e.type === 'cyberattack' ? '#FFE4E6' :
+          e.type === 'malware' ? '#FCE7F3' : '#E0E7FF';
+
+        const textColor =
+          e.type === 'person' ? '#DC2626' :
+          e.type === 'phone' ? '#9333EA' :
+          e.type === 'vehicle' ? '#D97706' :
+          e.type === 'account' ? '#0284C7' :
+          e.type === 'location' ? '#4F46E5' :
+          e.type === 'ip' ? '#4338CA' :
+          e.type === 'domain' ? '#0F766E' :
+          e.type === 'crypto' ? '#B45309' :
+          e.type === 'cyberattack' ? '#BE123C' :
+          e.type === 'malware' ? '#BE185D' : '#4F46E5';
         
         // Circular auto-layout for dynamic nodes
         const angle = (idx / Math.max(1, entities.length)) * Math.PI * 2;
@@ -100,7 +136,11 @@ export const NetworkGraphView: React.FC = () => {
       { id: 'rel-2', source: 'ent-2', target: 'ent-3', type: 'FINANCIAL', label: '$450,000 SWIFT Offshore Wire', sourceDoc: 'SWIFT_wire_9921.txt', confidence: 99 },
       { id: 'rel-3', source: 'ent-1', target: 'ent-4', type: 'OWNERSHIP', label: 'Registered Getaway Vehicle', sourceDoc: 'ANPR_Pier42.log', confidence: 94 },
       { id: 'rel-4', source: 'ent-4', target: 'ent-6', type: 'CO_LOCATION', label: 'ANPR Pier 42 Hit 03:15 AM', sourceDoc: 'Surveillance_Log_0315.txt', confidence: 96 },
-      { id: 'rel-5', source: 'ent-1', target: 'ent-5', type: 'COMMUNICATION', label: 'Burner Telemetry Activation', sourceDoc: 'CDR_Telemetry_019.csv', confidence: 95 }
+      { id: 'rel-5', source: 'ent-1', target: 'ent-5', type: 'COMMUNICATION', label: 'Burner Telemetry Activation', sourceDoc: 'CDR_Telemetry_019.csv', confidence: 95 },
+      { id: 'rel-16', source: 'ent-1', target: 'ent-13', type: 'C2_COMMUNICATION', label: 'Encrypted C2 Command Tunnel', sourceDoc: 'Sysmon_Firewall_C2_Alert.log', confidence: 99 },
+      { id: 'rel-17', source: 'ent-13', target: 'ent-14', type: 'DATA_EXFILTRATION', label: '50GB Darknet DNS Egress Tunnel', sourceDoc: 'Zeek_DNS_Tunneling.log', confidence: 97 },
+      { id: 'rel-18', source: 'ent-15', target: 'ent-3', type: 'CRYPTO_RANSOM', label: '$1,250,000 USDT Crypto Cashout', sourceDoc: 'Chainalysis_Blockchain.csv', confidence: 98 },
+      { id: 'rel-19', source: 'ent-16', target: 'ent-13', type: 'MALWARE_INFECTION', label: 'LockBit C2 Beaconing', sourceDoc: 'CrowdStrike_EDR_Alert.json', confidence: 99 }
     ];
 
     const appLinks = relationships.map(r => ({
@@ -109,7 +149,7 @@ export const NetworkGraphView: React.FC = () => {
       target: r.target,
       type: r.type,
       label: r.label,
-      sourceDoc: r.sourceDoc || 'Ingested FIR Log',
+      sourceDoc: r.sourceDoc || 'Ingested Threat Log',
       confidence: r.confidence
     }));
 
@@ -287,7 +327,7 @@ export const NetworkGraphView: React.FC = () => {
       ctx.strokeStyle = node.riskColor;
       ctx.stroke();
 
-      // Node Tag Text (PE, PH, VE, AC, LO, OR)
+      // Node Tag Text (PE, PH, VE, AC, LO, OR, IP, DM, CW, CY, MW)
       ctx.fillStyle = node.textColor;
       ctx.font = 'bold 11px sans-serif';
       ctx.textAlign = 'center';
@@ -485,17 +525,17 @@ export const NetworkGraphView: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#0066FF] uppercase tracking-wider">
             <Shield className="w-4 h-4 text-blue-600" />
-            <span>INTERACTIVE SYNDICATE NETWORK TOPOLOGY CANVAS</span>
+            <span>INTERACTIVE SYNDICATE & CYBER THREAT TOPOLOGY CANVAS</span>
           </div>
           <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-1">Network Explorer</h2>
           <p className="text-sm text-slate-500 font-sans mt-0.5">
-            Trace connected entities, drag custom node layouts, inspect evidence docs, and expand 1st/2nd-degree subnetwork depths.
+            Trace connected criminal & cybercrime entities (IPs, C2 domains, crypto wallets, malware), drag custom layouts, and inspect evidence logs.
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-2">
-          {/* Degree Depth Toggle (Actions 1 & 2) */}
+          {/* Degree Depth Toggle */}
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-mono font-bold">
             <button
               onClick={() => setDegreeDepth(1)}
@@ -585,7 +625,7 @@ export const NetworkGraphView: React.FC = () => {
                 </div>
                 <div className="font-sans font-bold text-white text-xs pt-0.5">{hoveredEdge.label}</div>
                 <div className="text-[11px] text-slate-300">
-                  Source Doc: <strong className="text-blue-300 font-mono">{hoveredEdge.sourceDoc}</strong>
+                  Source Log: <strong className="text-blue-300 font-mono">{hoveredEdge.sourceDoc}</strong>
                 </div>
                 <div className="text-[10px] text-slate-400">
                   Connects: {hoveredEdge.sourceName} ↔ {hoveredEdge.targetName}
@@ -594,7 +634,7 @@ export const NetworkGraphView: React.FC = () => {
             )}
           </div>
 
-          {/* Interactive Gestures Capability Legend (matching Uploaded Image media_1787818519397.png) */}
+          {/* Interactive Gestures Capability Legend */}
           <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-sans grid grid-cols-2 md:grid-cols-5 gap-3">
             <div className="space-y-0.5">
               <span className="font-bold text-slate-900 block font-mono text-[11px]">Single Click Node</span>
@@ -614,7 +654,7 @@ export const NetworkGraphView: React.FC = () => {
             </div>
             <div className="space-y-0.5">
               <span className="font-bold text-amber-700 block font-mono text-[11px]">Hover Over Edge</span>
-              <span className="text-[11px] text-slate-500">Shows evidence doc & confidence popover</span>
+              <span className="text-[11px] text-slate-500">Shows threat log & confidence popover</span>
             </div>
           </div>
         </div>
@@ -627,7 +667,7 @@ export const NetworkGraphView: React.FC = () => {
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search entities by name or ID"
+                placeholder="Search criminal & cyber entities..."
                 value={searchFilter}
                 onChange={e => setSearchFilter(e.target.value)}
                 className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-10 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 font-sans"
@@ -646,6 +686,10 @@ export const NetworkGraphView: React.FC = () => {
                   <option value="all">All entity types</option>
                   <option value="person">Persons</option>
                   <option value="organization">Organizations</option>
+                  <option value="ip">IP Addresses (C2)</option>
+                  <option value="domain">Darknet Domains</option>
+                  <option value="crypto">Crypto Wallets</option>
+                  <option value="malware">Malware Payloads</option>
                   <option value="vehicle">Vehicles</option>
                   <option value="phone">Phones</option>
                   <option value="account">Accounts</option>
@@ -669,7 +713,7 @@ export const NetworkGraphView: React.FC = () => {
                 >
                   <div className="flex items-center space-x-3">
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 font-mono"
                       style={{ backgroundColor: item.color, color: item.textColor }}
                     >
                       {item.tag}

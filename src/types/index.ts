@@ -1,12 +1,45 @@
-export type EntityType = 'person' | 'organization' | 'location' | 'vehicle' | 'phone' | 'account' | 'event';
+export type EntityType =
+  | 'person'
+  | 'organization'
+  | 'location'
+  | 'vehicle'
+  | 'phone'
+  | 'account'
+  | 'event'
+  | 'ip'
+  | 'domain'
+  | 'crypto'
+  | 'cyberattack'
+  | 'malware';
 
 export type ThreatLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'NEUTRAL' | 'INTEL';
 
-export type SourceType = 'FIR' | 'CDR' | 'FINANCIAL' | 'SURVEILLANCE' | 'SOCMINT' | 'CRIMINAL_DB' | 'INTEL_REPORT';
+export type SourceType =
+  | 'FIR'
+  | 'CDR'
+  | 'FINANCIAL'
+  | 'SURVEILLANCE'
+  | 'SOCMINT'
+  | 'CRIMINAL_DB'
+  | 'INTEL_REPORT'
+  | 'CYBER_INTEL'
+  | 'FIREWALL_LOG'
+  | 'DARKNET_LEAK'
+  | 'BLOCKCHAIN_SWIFT';
 
 export type CaseStatus = 'OPEN' | 'UNDER_INVESTIGATION' | 'CLOSED' | 'ARCHIVED';
 
-export type RelationshipType = 'FINANCIAL' | 'COMMUNICATION' | 'CO_LOCATION' | 'ASSOCIATION' | 'OWNERSHIP' | 'INFERRED';
+export type RelationshipType =
+  | 'FINANCIAL'
+  | 'COMMUNICATION'
+  | 'CO_LOCATION'
+  | 'ASSOCIATION'
+  | 'OWNERSHIP'
+  | 'INFERRED'
+  | 'C2_COMMUNICATION'
+  | 'DATA_EXFILTRATION'
+  | 'CRYPTO_RANSOM'
+  | 'MALWARE_INFECTION';
 
 export interface Entity {
   id: string;
@@ -25,6 +58,10 @@ export interface Entity {
   phone?: string;
   vehiclePlate?: string;
   accountNumber?: string;
+  ipAddress?: string;
+  domainName?: string;
+  cryptoWallet?: string;
+  malwareHash?: string;
   coordinates?: [number, number]; // [lat, lng]
   locationName?: string;
   associatedCaseIds: string[];
