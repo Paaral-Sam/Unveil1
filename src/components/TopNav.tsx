@@ -80,23 +80,23 @@ export const TopNav: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full flex flex-col font-sans select-none bg-[#03081A] border-b border-blue-900/40 backdrop-blur-xl shadow-2xl transition-all duration-300">
-      {/* Main Top Header Strip matching media_1787822845694.png */}
-      <div className="w-full px-6 sm:px-8 lg:px-10 py-3 flex items-center justify-between gap-6">
-        {/* Left Brand Logo matching Reference Image */}
+      {/* Main Top Header Strip */}
+      <div className="w-full px-4 sm:px-8 lg:px-10 py-3 flex items-center justify-between gap-3 sm:gap-6">
+        {/* Left Brand Logo */}
         <div
           onClick={() => scrollToSection('section-hero')}
-          className="flex items-center space-x-3 cursor-pointer group shrink-0"
+          className="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer group shrink-0"
         >
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 group-active:scale-95 transition-transform duration-200">
-            <Shield className="w-5.5 h-5.5 text-white" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 group-active:scale-95 transition-transform duration-200">
+            <Shield className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white" />
           </div>
           <div>
-            <h1 className="font-extrabold text-xl text-white tracking-tight leading-tight group-hover:text-blue-300 transition-colors">UnVeil</h1>
-            <p className="text-[10px] text-[#EF4444] font-mono uppercase tracking-widest font-bold">INTELLIGENCE</p>
+            <h1 className="font-extrabold text-lg sm:text-xl text-white tracking-tight leading-tight group-hover:text-blue-300 transition-colors">UnVeil</h1>
+            <p className="text-[9px] sm:text-[10px] text-[#EF4444] font-mono uppercase tracking-widest font-bold">INTELLIGENCE</p>
           </div>
         </div>
 
-        {/* Middle Navigation Links Bar matching Reference Image media_1787822845694.png */}
+        {/* Middle Navigation Links Bar for Desktop Screens */}
         <nav className="hidden lg:flex items-center space-x-1 border border-blue-600/40 rounded-full px-2 py-1.5 bg-[#071330]/80 shadow-2xl">
           {NAV_LINKS.map(link => {
             const isActive = activeSection === link.id;
@@ -117,18 +117,18 @@ export const TopNav: React.FC = () => {
         </nav>
 
         {/* Right Search Input, Bell with Badge, and Gradient User Profile Icon */}
-        <div className="flex items-center space-x-3 shrink-0">
+        <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
           {/* Search Bar */}
-          <div className="relative w-36 sm:w-48 lg:w-56">
+          <div className="relative w-28 sm:w-48 lg:w-56">
             <div className="relative flex items-center">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 pointer-events-none" />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                className="w-full bg-[#040D26] border border-blue-900/60 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 rounded-full px-9 py-1.5 text-xs text-white placeholder-slate-400 focus:outline-none transition-all duration-200 font-sans"
+                className="w-full bg-[#040D26] border border-blue-900/60 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 rounded-full pl-8 sm:pl-9 pr-3 py-1.5 text-xs text-white placeholder-slate-400 focus:outline-none transition-all duration-200 font-sans"
               />
               {searchQuery && (
                 <button onClick={() => setSearchQuery('')} className="absolute right-3 text-slate-400 hover:text-white transition-colors">
@@ -139,7 +139,7 @@ export const TopNav: React.FC = () => {
 
             {/* Search Results Overlay */}
             {isSearchFocused && searchResults.length > 0 && (
-              <div className="absolute top-full right-0 mt-2 w-80 bg-[#040E26] border border-blue-500/40 rounded-2xl shadow-2xl z-50 max-h-72 overflow-y-auto p-2">
+              <div className="absolute top-full right-0 mt-2 w-72 sm:w-80 bg-[#040E26] border border-blue-500/40 rounded-2xl shadow-2xl z-50 max-h-72 overflow-y-auto p-2">
                 <div className="px-3 py-2 text-xs text-slate-300 font-bold border-b border-blue-900/50 flex justify-between">
                   <span>FOUND {searchResults.length} ENTITIES</span>
                   <button onClick={() => setIsSearchFocused(false)} className="hover:text-white">CLOSE</button>
@@ -160,14 +160,14 @@ export const TopNav: React.FC = () => {
             )}
           </div>
 
-          {/* AI Alert Bell matching Screenshot media_1787822845694.png */}
+          {/* AI Alert Bell */}
           <div className="relative">
             <button
               onClick={() => setIsAlertsOpen(!isAlertsOpen)}
-              className="relative w-9 h-9 rounded-full bg-[#040D26] border border-blue-900/60 hover:border-red-500/40 text-rose-400 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200"
+              className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#040D26] border border-blue-900/60 hover:border-red-500/40 text-rose-400 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200"
               title="AI Threat Alerts"
             >
-              <Bell className="w-4 h-4 text-rose-400" />
+              <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" />
               {patterns.length > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#EF4444] text-white font-mono text-[10px] rounded-full flex items-center justify-center font-bold">
                   {patterns.length}
@@ -177,7 +177,7 @@ export const TopNav: React.FC = () => {
 
             {/* Alerts Drawer */}
             {isAlertsOpen && (
-              <div className="absolute right-0 top-full mt-2 w-84 bg-[#040E26] border border-red-500/40 rounded-2xl shadow-2xl z-50 p-4">
+              <div className="absolute right-0 top-full mt-2 w-72 sm:w-84 bg-[#040E26] border border-red-500/40 rounded-2xl shadow-2xl z-50 p-4">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                   <div className="flex items-center space-x-2 text-red-400 text-sm font-bold">
                     <AlertCircle className="w-4.5 h-4.5" />
@@ -209,19 +209,19 @@ export const TopNav: React.FC = () => {
             )}
           </div>
 
-          {/* Gradient User Profile Icon matching Screenshot media_1787822845694.png */}
+          {/* Gradient User Profile Icon */}
           <div className="relative">
             <button
               onClick={() => setIsUserTooltipOpen(!isUserTooltipOpen)}
-              className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold shadow-md hover:scale-105 active:scale-95 transition-all duration-200"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold shadow-md hover:scale-105 active:scale-95 transition-all duration-200"
               title="Click to view Analyst Profile & Log Out"
             >
-              <User className="w-4 h-4 text-white" />
+              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
             </button>
 
             {/* Profile Popover Modal with Log Out Option */}
             {isUserTooltipOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-[#040E26] border border-blue-500/50 rounded-2xl shadow-2xl z-50 p-4 font-mono text-xs space-y-3">
+              <div className="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-[#040E26] border border-blue-500/50 rounded-2xl shadow-2xl z-50 p-4 font-mono text-xs space-y-3">
                 <div className="flex items-center justify-between border-b border-blue-900/50 pb-2">
                   <span className="text-[#0088FF] font-bold text-xs uppercase">ANALYST_PROFILE</span>
                   <button onClick={() => setIsUserTooltipOpen(false)} className="text-slate-400 hover:text-white">
@@ -252,6 +252,26 @@ export const TopNav: React.FC = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Mobile Horizontal Navigation Tab Scroll Strip */}
+      <div className="flex lg:hidden overflow-x-auto space-x-1.5 px-4 py-2 border-t border-blue-900/40 bg-[#050D24] scrollbar-none">
+        {NAV_LINKS.map(link => {
+          const isActive = activeSection === link.id;
+          return (
+            <button
+              key={link.id}
+              onClick={() => scrollToSection(link.id)}
+              className={`px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap shrink-0 transition-all ${
+                isActive
+                  ? 'bg-gradient-to-r from-[#E85D75] via-[#A855F7] to-[#3B82F6] text-white shadow-md'
+                  : 'text-slate-300 hover:text-white bg-blue-950/40 border border-blue-900/40'
+              }`}
+            >
+              {link.label}
+            </button>
+          );
+        })}
       </div>
     </header>
   );
