@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, Upload, FileText, Bot, User, CheckCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { askGroqCopilot } from '../services/groq';
 
 interface ChatMessage {
   id: string;
@@ -16,13 +17,13 @@ export const AiCopilotSidebar: React.FC<{ isOpen: boolean; onClose: () => void }
     {
       id: 'msg-1',
       sender: 'ai',
-      text: `Hello Analyst. I have analyzed 6.02M records for ${currentCase.title} (${currentCase.caseNumber}). Ask me anything about entity connections, upload CDR/FIR documents, or request pattern synthesis.`,
-      timestamp: '09:59'
+      text: `Hello Analyst. Powered by Groq AI (Llama-3 70B), I am actively connected to ${currentCase.title} (${currentCase.caseNumber}). Ask me anything about C2 IP servers, ransomware malware, Monero/USDT mixer cashouts, or phone telemetry.`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
   const [inputQuery, setInputQuery] = useState('');
   const [attachedFile, setAttachedFile] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isAiThinking, setIsAiThinking] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -35,11 +36,11 @@ export const AiCopilotSidebar: React.FC<{ isOpen: boolean; onClose: () => void }
     if (isOpen) {
       scrollToBottom();
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isAiThinking]);
 
   if (!isOpen) return null;
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const q = textToSend || inputQuery;
     if (!q.trim() && !attachedFile) return;
 
@@ -54,49 +55,38 @@ export const AiCopilotSidebar: React.FC<{ isOpen: boolean; onClose: () => void }
     setMessages(prev => [...prev, userMsg]);
     setInputQuery('');
     setAttachedFile(null);
+    setIsAiThinking(true);
 
-    // AI Response Simulation
-    setTimeout(() => {
-      let aiReply = '';
-      const queryLower = q.toLowerCase();
+    // Call Groq API via Llama-3 70B Service
+    const aiReply = await askGroqCopilot(q, {
+      title: currentCase.title,
+      number: currentCase.caseNumber
+    });
 
-      if (queryLower.includes('arjun') || queryLower.includes('mehta') || queryLower.includes('proxy')) {
-        aiReply = `I found 3 primary proxy entities linked to Arjun Mehta (Risk 92):\n• Elena Rostova (Shell Manager - Risk 84)\n• Apex Global Holdings Ltd (Shell Co - Risk 90)\n• NY-771-X99 Black SUV (Vehicle - Risk 82)\nThese entities share 14 cross-border financial wires and 28 co-location pings at Pier 42.`;
-      } else if (queryLower.includes('cdr') || queryLower.includes('phone') || queryLower.includes('cluster')) {
-        aiReply = `CDR Analysis completed across 1.8M call logs:\n• Pre-incident call spike detected on 2026-08-25 between +1-555-019-4821 and +44-20-7946-0912.\n• 48 rapid burst calls logged 15 minutes prior to cargo arrival at Rotterdam Pier 42 Terminal.`;
-      } else if (queryLower.includes('summarize') || queryLower.includes('2291') || queryLower.includes('case')) {
-        aiReply = `${currentCase.title} (${currentCase.caseNumber}):\n• Total Identified Nodes: ${currentCase.entityCount}\n• Flagged Laundering Volume: $12,304.11 USD\n• High-Risk Ringleader: Viktor "The Architect" Rostov\n• Key Suspicious Pattern: 5-hop circular wire transfer returning to Cayman offshore pool.`;
-      } else if (attachedFile || queryLower.includes('upload') || queryLower.includes('document')) {
-        aiReply = `Extracted 4 high-confidence entities from ${attachedFile || 'intelligence file'}:\n1. Person: Dmitri Volkov (96% confidence)\n2. Account: Grand Cayman #881 (78% confidence)\n3. Vehicle: NY-771-X99 (92% confidence)\nThese items are pending your review in the Ingestion Module.`;
-      } else {
-        aiReply = `Cross-referencing intelligence database for "${q}":\nFound 1.02M node matches. Highest risk hit: Viktor "The Architect" Rostov (Risk 96). Linked to 18 active communication channels and $4.2M wire transfers.`;
-      }
+    const aiMsg: ChatMessage = {
+      id: `msg-ai-${Date.now()}`,
+      sender: 'ai',
+      text: aiReply,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
 
-      const aiMsg: ChatMessage = {
-        id: `msg-ai-${Date.now()}`,
-        sender: 'ai',
-        text: aiReply,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, aiMsg]);
-    }, 500);
+    setIsAiThinking(false);
+    setMessages(prev => [...prev, aiMsg]);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setIsUploading(true);
       setTimeout(() => {
         setAttachedFile(file.name);
-        setIsUploading(false);
-        handleSendMessage(`Uploaded case intelligence document: ${file.name}`);
+        handleSendMessage(`Uploaded case intelligence document: ${file.name}. Summarize entities.`);
       }, 600);
     }
   };
 
   return (
     <>
-      {/* Backdrop overlay so clicking outside closes sidebar, allowing clean view anywhere user is scrolled */}
+      {/* Backdrop overlay so clicking outside closes sidebar */}
       <div
         onClick={onClose}
         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] animate-fade-in"
@@ -108,116 +98,140 @@ export const AiCopilotSidebar: React.FC<{ isOpen: boolean; onClose: () => void }
         {/* Header Bar */}
         <div className="p-4 sm:p-5 bg-[#020718] border-b border-blue-900/50 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#EF4444] to-[#0066FF] flex items-center justify-center text-white shadow-lg">
-              <Sparkles className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#EF4444] via-[#A855F7] to-[#0066FF] border border-white/20 flex items-center justify-center text-white shadow-lg">
+              <Sparkles className="w-5 h-5 text-white animate-pulse" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-white tracking-tight leading-tight">AI Copilot Assistant</h3>
-              <p className="text-xs text-[#0088FF] font-mono font-bold uppercase tracking-wider">ACTIVE CASE: {currentCase.caseNumber}</p>
+              <div className="flex items-center space-x-1.5">
+                <h3 className="font-extrabold text-lg text-white tracking-tight leading-none">UnVeil AI Copilot</h3>
+                <span className="px-2 py-0.5 rounded-md bg-emerald-950 border border-emerald-500/40 text-emerald-400 font-mono text-[9px] font-bold">GROQ LIVE</span>
+              </div>
+              <p className="text-xs text-blue-400 font-mono font-bold mt-1">Llama-3 70B &nbsp;·&nbsp; {currentCase.caseNumber}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-blue-900/50 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-blue-950 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Case Document Ingestion Banner */}
-        <div className="p-4 bg-[#081538] border-b border-blue-900/40 font-mono text-xs shrink-0">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-slate-300 font-bold uppercase text-[11px] tracking-wider">CASE DOCUMENT INGESTION</span>
-            <span className="text-emerald-400 font-bold text-[10px]">PDF, TXT, CDR SUPPORTED</span>
-          </div>
-
-          <label className="border-2 border-dashed border-blue-500/40 hover:border-blue-400 rounded-2xl p-3.5 bg-[#020718] flex items-center justify-center space-x-2.5 cursor-pointer transition-all hover:bg-blue-950/30 group">
-            <Upload className="w-4 h-4 text-[#0088FF] group-hover:scale-110 transition-transform" />
-            <span className="text-slate-300 font-bold">
-              {isUploading ? 'Uploading file...' : attachedFile ? `Attached: ${attachedFile}` : 'Upload FIR / CDR / Intelligence Doc'}
-            </span>
-            <input type="file" onChange={handleFileUpload} className="hidden" accept=".pdf,.txt,.csv,.json,.docx" />
-          </label>
-
-          {attachedFile && (
-            <div className="mt-2 text-[11px] text-emerald-400 font-bold flex items-center space-x-1">
-              <CheckCircle className="w-3.5 h-3.5" />
-              <span>Document ready for AI cross-examination</span>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Action Prompt Chips */}
-        <div className="p-3 bg-[#040C24] border-b border-blue-900/40 flex flex-wrap gap-1.5 text-xs font-mono shrink-0">
-          {[
-            `Summarize active case #${currentCase.caseNumber.split('-').pop() || '2291'}`,
-            'Identify proxies for Arjun Mehta',
-            'Analyze phone CDR clusters'
-          ].map(chip => (
-            <button
-              key={chip}
-              onClick={() => handleSendMessage(chip)}
-              className="px-3 py-1.5 rounded-full bg-[#081538] hover:bg-gradient-to-r hover:from-[#EF4444] hover:to-[#0066FF] border border-blue-500/30 text-blue-300 hover:text-white text-[11px] font-bold transition-all shadow-sm"
-            >
-              + {chip}
-            </button>
-          ))}
-        </div>
-
-        {/* ChatGPT-like Interactive Message Stream */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 font-sans text-xs">
+        {/* Chat Messages Area */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar">
           {messages.map(msg => (
             <div
               key={msg.id}
-              className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex items-start space-x-3 ${msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}
             >
-              <div className={`max-w-[88%] p-4 rounded-3xl space-y-1.5 ${
-                msg.sender === 'user'
-                  ? 'bg-gradient-to-r from-[#EF4444] to-[#0066FF] text-white rounded-br-none shadow-xl'
-                  : 'bg-[#081538] border border-blue-500/40 text-slate-200 rounded-bl-none shadow-lg'
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${
+                msg.sender === 'ai'
+                  ? 'bg-gradient-to-tr from-purple-600 to-blue-600 text-white shadow-md'
+                  : 'bg-slate-700 text-white'
               }`}>
-                <div className="flex items-center space-x-2 text-[10px] opacity-75 font-mono font-bold uppercase">
-                  {msg.sender === 'user' ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5 text-[#0088FF]" />}
-                  <span>{msg.sender === 'user' ? 'ANALYST' : 'UNVEIL AI COPILOT'}</span>
-                  <span>· {msg.timestamp}</span>
+                {msg.sender === 'ai' ? <Bot className="w-4 h-4 text-white" /> : <User className="w-4 h-4 text-white" />}
+              </div>
+
+              <div className={`max-w-[85%] space-y-1 ${msg.sender === 'user' ? 'items-end' : ''}`}>
+                <div className={`p-4 rounded-2xl text-xs sm:text-sm font-sans leading-relaxed whitespace-pre-line shadow-md ${
+                  msg.sender === 'ai'
+                    ? 'bg-[#081538] border border-blue-900/50 text-slate-100'
+                    : 'bg-gradient-to-r from-[#EF4444] to-[#0066FF] text-white font-medium'
+                }`}>
+                  {msg.fileAttached && (
+                    <div className="mb-2 p-2 rounded-xl bg-black/30 border border-white/20 flex items-center space-x-2 text-xs font-mono">
+                      <FileText className="w-4 h-4 text-emerald-400" />
+                      <span>{msg.fileAttached}</span>
+                    </div>
+                  )}
+                  {msg.text}
                 </div>
 
-                {msg.fileAttached && (
-                  <div className="p-2 rounded-xl bg-black/30 border border-white/20 text-[11px] font-mono flex items-center space-x-2">
-                    <FileText className="w-4 h-4 text-amber-300" />
-                    <span className="font-bold">{msg.fileAttached}</span>
-                  </div>
-                )}
-
-                <div className="leading-relaxed font-sans text-xs space-y-1 whitespace-pre-line">
-                  {msg.text}
+                <div className={`text-[10px] font-mono text-slate-400 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
+                  {msg.timestamp}
                 </div>
               </div>
             </div>
           ))}
+
+          {/* AI Thinking Spinner */}
+          {isAiThinking && (
+            <div className="flex items-start space-x-3">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-blue-600 flex items-center justify-center text-white shrink-0">
+                <Bot className="w-4 h-4 text-white animate-spin" />
+              </div>
+              <div className="p-3.5 rounded-2xl bg-[#081538] border border-blue-900/50 text-xs text-blue-300 font-mono flex items-center space-x-2">
+                <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+                <span>Groq Llama-3 70B reasoning over case intelligence...</span>
+              </div>
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Bottom ChatGPT-style Input Bar */}
-        <form
-          onSubmit={e => { e.preventDefault(); handleSendMessage(); }}
-          className="p-4 bg-[#020718] border-t border-blue-900/50 flex items-center space-x-2 shrink-0"
-        >
-          <input
-            type="text"
-            placeholder="Type a question or query intelligence database..."
-            value={inputQuery}
-            onChange={e => setInputQuery(e.target.value)}
-            className="flex-1 bg-[#081538] border border-blue-500/40 focus:border-[#0088FF] rounded-2xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none font-sans shadow-inner"
-          />
+        {/* Quick Action Suggestion Chips */}
+        <div className="px-4 py-2 bg-[#020718]/80 border-t border-blue-900/40 flex items-center space-x-2 overflow-x-auto text-[11px] font-mono scrollbar-none">
           <button
-            type="submit"
-            className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#EF4444] to-[#0066FF] hover:scale-105 active:scale-95 text-white font-bold text-xs shadow-lg flex items-center space-x-1 transition-all"
+            onClick={() => handleSendMessage('Summarize key threat patterns in case 2291')}
+            className="px-3 py-1 rounded-full bg-blue-950/80 hover:bg-blue-900 border border-blue-500/40 text-blue-300 whitespace-nowrap transition-colors"
           >
-            <Send className="w-4 h-4" />
+            ⚡ Case Threat Summary
           </button>
-        </form>
+          <button
+            onClick={() => handleSendMessage('Show all C2 IP addresses and darknet domains')}
+            className="px-3 py-1 rounded-full bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-300 whitespace-nowrap transition-colors"
+          >
+            💻 C2 IPs & Darknet
+          </button>
+          <button
+            onClick={() => handleSendMessage('Trace Tether USDT crypto mixer transfers')}
+            className="px-3 py-1 rounded-full bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 whitespace-nowrap transition-colors"
+          >
+            🪙 Crypto Mixer Hops
+          </button>
+        </div>
+
+        {/* Input Bar */}
+        <div className="p-4 bg-[#020718] border-t border-blue-900/50 space-y-3 shrink-0">
+          {attachedFile && (
+            <div className="flex items-center justify-between p-2 rounded-xl bg-blue-950 border border-blue-500/40 text-xs text-blue-300 font-mono">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <span>Attached: <strong>{attachedFile}</strong></span>
+              </div>
+              <button onClick={() => setAttachedFile(null)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+          )}
+
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              placeholder="Ask Groq AI about case entities, C2 IPs, crypto..."
+              value={inputQuery}
+              onChange={e => setInputQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+              disabled={isAiThinking}
+              className="w-full bg-[#081538] border border-blue-500/40 focus:border-[#0088FF] focus:ring-1 focus:ring-blue-500/30 rounded-2xl pl-4 pr-24 py-3 text-xs text-white placeholder-slate-400 font-sans focus:outline-none"
+            />
+
+            <div className="absolute right-2 flex items-center space-x-1">
+              <label className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-blue-900/60 cursor-pointer transition-colors" title="Upload File to AI">
+                <Upload className="w-4 h-4" />
+                <input type="file" onChange={handleFileUpload} accept=".txt,.pdf,.csv,.json,.log" className="hidden" />
+              </label>
+
+              <button
+                onClick={() => handleSendMessage()}
+                disabled={!inputQuery.trim() && !attachedFile}
+                className="p-2 rounded-xl bg-gradient-to-r from-[#EF4444] to-[#0066FF] hover:brightness-110 text-white disabled:opacity-50 transition-all shadow-md"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
 
       </div>
     </>

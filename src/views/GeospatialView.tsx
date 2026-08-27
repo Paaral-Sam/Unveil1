@@ -35,9 +35,10 @@ export const GeospatialView: React.FC = () => {
       zoomControl: false
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    // 100% Free Public OpenStreetMap Tile Server (Requires Zero API Keys)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; CartoDB'
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
     L.control.zoom({ position: 'topright' }).addTo(map);
@@ -62,128 +63,95 @@ export const GeospatialView: React.FC = () => {
         `);
     });
 
-    // Draw Vector Path Polyline
-    const points = movementEvents.map(e => [e.coords[0], e.coords[1]] as [number, number]);
-    L.polyline(points, {
+    // Draw Dashed Polyline Route
+    const routeCoords = movementEvents.map(e => e.coords as [number, number]);
+    L.polyline(routeCoords, {
       color: '#0066FF',
       weight: 3,
-      dashArray: '6, 6',
+      dashArray: '6, 8',
       opacity: 0.8
     }).addTo(map);
 
     mapInstanceRef.current = map;
   }, []);
 
-  // Playback timer
+  // Movement Playback Animation Logic
   useEffect(() => {
     let timer: any;
     if (isPlaying) {
       timer = setInterval(() => {
-        setTimelineIndex(prev => {
+        setTimelineIndex((prev) => {
           const next = (prev + 1) % movementEvents.length;
           if (mapInstanceRef.current) {
             const ev = movementEvents[next];
-            mapInstanceRef.current.panTo([ev.coords[0], ev.coords[1]]);
+            mapInstanceRef.current.flyTo([ev.coords[0], ev.coords[1]], 13, { duration: 1.2 });
           }
           return next;
         });
-      }, 2000);
+      }, 2200);
     }
     return () => clearInterval(timer);
   }, [isPlaying]);
 
+  const currentEv = movementEvents[timelineIndex];
+
   return (
     <div className="w-full bg-white p-6 lg:p-8 space-y-6 font-sans text-slate-900 rounded-3xl border border-slate-200 shadow-md animate-fade-in-up">
-      {/* Header Bar */}
+      {/* Header Banner */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#0066FF] uppercase tracking-wider">
+          <div className="flex items-center space-x-2 text-xs text-[#0066FF] font-bold uppercase tracking-wider font-mono">
             <Navigation className="w-4 h-4 text-blue-600" />
             <span>GEOSPATIAL INTELLIGENCE & TELEMETRY PLAYBACK ENGINE</span>
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">
             Surveillance & Movement Playback
           </h2>
-          <p className="text-sm text-slate-500 font-sans mt-0.5">
+          <p className="text-sm text-slate-500 mt-0.5">
             Plot GPS coordinates, ANPR camera plate hits, cell tower CDR pings, and geofence time sequence routes.
           </p>
         </div>
 
         {/* Playback Controls */}
-        <div className="flex items-center space-x-2 font-mono text-xs">
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className={`px-4 py-2 rounded-xl text-white font-bold flex items-center space-x-2 shadow-md transition-all ${
-              isPlaying ? 'bg-amber-600 hover:bg-amber-500' : 'bg-[#0066FF] hover:bg-blue-500'
+            className={`px-4 py-2 rounded-xl text-white font-bold text-xs font-mono flex items-center space-x-2 shadow-md transition-all ${
+              isPlaying ? 'bg-amber-600 hover:bg-amber-500' : 'bg-blue-600 hover:bg-blue-500'
             }`}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            <span>{isPlaying ? 'Pause Playback' : 'Play Movement Route'}</span>
+            <span>{isPlaying ? 'Pause Playback' : 'Start Playback'}</span>
           </button>
+
           <button
-            onClick={() => { setTimelineIndex(0); setIsPlaying(false); }}
-            className="p-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-xl transition-colors"
-            title="Reset Route"
+            onClick={() => {
+              setIsPlaying(false);
+              setTimelineIndex(0);
+              if (mapInstanceRef.current) {
+                mapInstanceRef.current.flyTo([movementEvents[0].coords[0], movementEvents[0].coords[1]], 11);
+              }
+            }}
+            className="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-300 text-slate-700 transition-colors"
+            title="Reset Map Route"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Map Canvas & Event Inspector Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Map Container */}
-        <div className="lg:col-span-2 rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-[480px] relative bg-slate-100">
-          <div ref={mapContainerRef} className="w-full h-full z-10" />
+      {/* Main Map Box Container */}
+      <div className="relative w-full h-[520px] rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100">
+        <div ref={mapContainerRef} className="w-full h-full z-10" />
 
-          {/* Active Playback Floating Pill */}
-          <div className="absolute top-4 left-4 z-20 p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-lg text-xs font-mono space-y-1">
-            <div className="flex items-center space-x-2 text-blue-600 font-bold">
-              <Compass className="w-4 h-4" />
-              <span>CURRENT TIMEFRAME: {movementEvents[timelineIndex].time}</span>
-            </div>
-            <div className="font-sans text-slate-900 font-extrabold text-sm">{movementEvents[timelineIndex].title}</div>
-            <div className="text-slate-500 text-[11px]">Target: {movementEvents[timelineIndex].entityName}</div>
+        {/* Floating Active Time Card */}
+        <div className="absolute top-4 left-4 z-20 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-xl max-w-sm font-sans space-y-1">
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-blue-600">
+            <Compass className="w-4 h-4 text-blue-600" />
+            <span>CURRENT TIMEFRAME: {currentEv.time}</span>
           </div>
-        </div>
-
-        {/* Chronological Movement Route Inspector List */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 flex flex-col justify-between">
-          <div className="space-y-3">
-            <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">
-              MOVEMENT SEQUENCE STEPS
-            </div>
-
-            <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
-              {movementEvents.map((ev, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => {
-                    setTimelineIndex(idx);
-                    if (mapInstanceRef.current) {
-                      mapInstanceRef.current.panTo([ev.coords[0], ev.coords[1]]);
-                    }
-                  }}
-                  className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                    timelineIndex === idx
-                      ? 'bg-blue-50 border-[#0066FF] shadow-sm'
-                      : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-[#F8FAFC]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-xs font-mono font-bold text-blue-600">
-                    <span>STEP #{idx + 1}</span>
-                    <span>{ev.time}</span>
-                  </div>
-                  <div className="font-bold text-xs text-slate-900 mt-1">{ev.title}</div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">{ev.entityName}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-slate-100 text-center text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-            CLICK STEP TO RE-CENTER MAP
-          </div>
+          <h4 className="font-extrabold text-sm text-slate-900 leading-tight">{currentEv.title}</h4>
+          <p className="text-xs text-slate-500 font-mono">Target: {currentEv.entityName}</p>
         </div>
       </div>
     </div>
