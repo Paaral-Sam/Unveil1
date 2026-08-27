@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { TopNav } from './components/TopNav';
 import { ParticleBackground } from './components/ParticleBackground';
+import PixelSnow from './components/PixelSnow';
 import { WelcomeView } from './views/WelcomeView';
 import { HeroView } from './views/HeroView';
 import { DashboardView } from './views/DashboardView';
@@ -112,8 +113,24 @@ const AppContent: React.FC = () => {
 export function App() {
   return (
     <AppProvider>
-      {/* Global Interactive Background Particle Canvas Active Across ALL Pages */}
+      {/* Global Interactive Background Canvas Layer */}
       <ParticleBackground />
+
+      {/* React Bits Three.js PixelSnow Particle Layer */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <PixelSnow
+          color="#38bdf8"
+          flakeSize={0.012}
+          minFlakeSize={1.25}
+          pixelResolution={220}
+          speed={1.25}
+          density={0.35}
+          direction={125}
+          brightness={1.2}
+          variant="round"
+        />
+      </div>
+
       <AppContent />
     </AppProvider>
   );
