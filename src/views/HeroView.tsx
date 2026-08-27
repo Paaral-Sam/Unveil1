@@ -21,7 +21,7 @@ export const HeroView: React.FC = () => {
   };
 
   return (
-    <section id="section-hero" className="w-full min-h-[88vh] bg-gradient-to-b from-[#05143C] via-[#040C24] to-[#020718] py-24 px-6 sm:px-12 lg:px-20 flex flex-col items-center justify-center text-center relative overflow-hidden select-none border-b border-blue-900/40">
+    <section id="section-hero" className="w-full min-h-[88vh] bg-gradient-to-b from-[#05143C]/70 via-[#040C24]/80 to-[#020718]/90 py-24 px-6 sm:px-12 lg:px-20 flex flex-col items-center justify-center text-center relative overflow-hidden select-none border-b border-blue-900/40 backdrop-blur-xs">
       {/* Ambient Navy Blue Spotlights */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
 

@@ -33,10 +33,7 @@ const AppContent: React.FC = () => {
 
   // Screen 3: Full UnVeil Single-Page Application
   return (
-    <div className="min-h-screen w-full bg-[#03050B] text-slate-100 font-sans flex flex-col selection:bg-blue-600 selection:text-white animate-fade-in-up relative">
-      {/* Interactive Background Particle Canvas Engine */}
-      <ParticleBackground />
-
+    <div className="min-h-screen w-full bg-[#03050B]/90 text-slate-100 font-sans flex flex-col selection:bg-blue-600 selection:text-white animate-fade-in-up relative z-10">
       {/* Sticky Top Header spanning 100% full browser width */}
       <TopNav />
 
@@ -105,7 +102,7 @@ const AppContent: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-blue-900/40 bg-[#020718] py-8 text-center text-xs text-slate-500 font-mono relative z-10">
+      <footer className="w-full border-t border-blue-900/40 bg-[#020718]/90 py-8 text-center text-xs text-slate-500 font-mono relative z-10">
         <p>UnVeil Intelligence System &nbsp;·&nbsp; RESTRICTED LAW ENFORCEMENT & CYBER THREAT PORTAL &nbsp;·&nbsp; VERSION 2.5</p>
       </footer>
     </div>
@@ -115,6 +112,8 @@ const AppContent: React.FC = () => {
 export function App() {
   return (
     <AppProvider>
+      {/* Global Interactive Background Particle Canvas Active Across ALL Pages */}
+      <ParticleBackground />
       <AppContent />
     </AppProvider>
   );
