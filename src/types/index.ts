@@ -70,6 +70,7 @@ export interface Case {
 export interface NLPItem {
   id: string;
   textSnippet: string;
+  fullTextPayload?: string;
   extractedName: string;
   extractedType: EntityType;
   confidenceScore: number;
@@ -83,39 +84,40 @@ export interface PatternAnomaly {
   id: string;
   caseId: string;
   title: string;
-  type: 'CIRCULAR_FUNDS' | 'BURNER_PHONE' | 'CALL_SPIKE_PRE_EVENT' | 'CO_LOCATION_CLUSTER' | 'RAPID_ASSET_DISPOSAL';
+  type: string;
   severity: 'HIGH' | 'MEDIUM' | 'LOW';
   description: string;
   entitiesInvolved: string[];
   timestamp: string;
-  evidenceSnippet: string;
-  status: 'UNREVIEWED' | 'INVESTIGATING' | 'FALSE_POSITIVE' | 'ESCALATED';
-}
-
-export interface TimelineEvent {
-  id: string;
-  caseId: string;
-  entityId: string;
-  timestamp: string;
-  title: string;
-  type: string;
-  sourceTag: SourceType;
-  locationName?: string;
-  coordinates?: [number, number];
-  description: string;
-  linkedEntityIds: string[];
-  category?: string;
-  source?: string;
-  relatedEntities?: string[];
+  status: 'NEW' | 'REVIEWED' | 'DISMISSED' | 'UNREVIEWED' | 'INVESTIGATING' | 'CONFIRMED_THREAT' | 'FALSE_POSITIVE';
+  evidenceSnippet?: string;
 }
 
 export interface AuditLog {
   id: string;
   timestamp: string;
-  user: string;
-  role: string;
+  actor?: string;
+  role?: string;
   action: string;
-  target: string;
-  caseId: string;
-  ipAddress: string;
+  resource?: string;
+  status?: 'SUCCESS' | 'DENIED' | 'FLAGGED';
+  ipAddress?: string;
+  user?: string;
+  target?: string;
+  caseId?: string;
+}
+
+export interface TimelineEvent {
+  id: string;
+  timestamp: string;
+  title: string;
+  description: string;
+  type: string;
+  entityIds?: string[];
+  entityId?: string;
+  linkedEntityIds?: string[];
+  sourceTag?: string;
+  caseId?: string;
+  locationName?: string;
+  coordinates?: [number, number];
 }

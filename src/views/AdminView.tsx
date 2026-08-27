@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, UserCheck, Search, Filter, Lock, Terminal, Activity, FileSpreadsheet } from 'lucide-react';
+import { ShieldCheck, UserCheck, Search, Filter, Lock, Terminal, Activity } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const AdminView: React.FC = () => {
@@ -11,9 +11,9 @@ export const AdminView: React.FC = () => {
     ...auditLogs.map(l => ({
       id: l.id,
       timestamp: l.timestamp,
-      user: l.user,
+      user: l.user || l.actor || 'Analyst J. Vance',
       action: l.action,
-      target: l.target,
+      target: l.target || l.resource || 'Entity Graph',
       ip: l.ipAddress || '10.240.8.12'
     })),
     { id: 'log-105', timestamp: '26/08/2026, 18:45:10', user: 'Analyst J. Vance (Badge #8804)', action: 'GEO_SURVEILLANCE_PLAYBACK', target: 'Geofence Cluster Sector 18', ip: '10.240.8.12' },
@@ -28,138 +28,129 @@ export const AdminView: React.FC = () => {
     const searchMatch = log.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         log.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        log.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const actionMatch = selectedActionFilter === 'ALL' || log.action.includes(selectedActionFilter);
+                        log.ip.includes(searchTerm);
+    const actionMatch = selectedActionFilter === 'ALL' || log.action === selectedActionFilter;
     return searchMatch && actionMatch;
   });
 
   return (
-    <div className="p-6 sm:p-8 space-y-8 min-h-[85vh] font-sans text-slate-100 animate-fade-in-up flex flex-col justify-between">
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-blue-900/40 pb-4">
+    <div className="p-6 sm:p-8 space-y-8 min-h-[85vh] font-sans text-slate-100 animate-fade-in-up">
+      {/* Top Banner */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-blue-900/40 pb-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-[#EF4444] font-bold uppercase tracking-wider mb-1">
-            <Lock className="w-4 h-4" />
-            <span>SYSTEM AUDIT LOGS & ACCESS CONTROL</span>
+          <div className="flex items-center space-x-2 text-xs text-blue-400 font-bold uppercase tracking-wider font-mono">
+            <Lock className="w-4 h-4 text-blue-400" />
+            <span>IMMUTABLE SYSTEM AUDIT LOGS & COMPLIANCE MATRIX</span>
           </div>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Security Audit Trail & User Access Matrix</h2>
-          <p className="text-sm text-slate-400 font-sans mt-1">
-            18 U.S.C. compliance access logs, data stream connector statuses, and security clearance management.
+          <h1 className="text-3xl font-extrabold tracking-tight text-white mt-1">
+            Security Audit Trail & Governance Portal
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">
+            Real-time cryptographic access logging, analyst action history, and security clearance monitoring.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 font-mono text-xs">
-          <div className="p-3 rounded-2xl bg-[#040E26] border border-blue-500/40 flex items-center space-x-2 text-blue-300 font-bold">
-            <UserCheck className="w-4 h-4 text-emerald-400" />
-            <span>ACTIVE ROLE: {currentUser.role.toUpperCase()}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Top 3 Status Monitor Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-5 rounded-2xl bg-[#040E26]/90 border border-blue-500/40 space-y-2 font-mono backdrop-blur-xl">
-          <div className="flex justify-between text-xs text-slate-400 font-bold">
-            <span>AUDIT COMPLIANCE SCORE</span>
+        <div className="flex items-center space-x-3 self-start md:self-auto">
+          <div className="px-4 py-2 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 font-mono text-xs font-bold flex items-center space-x-2 shadow-lg">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>CLEARANCE LEVEL: {currentUser.role.toUpperCase()}</span>
           </div>
-          <div className="text-3xl font-extrabold text-white">100% ISO-27001</div>
-          <div className="text-[11px] text-emerald-400 font-bold">Immutable Append-Only Log Ledger</div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-[#040E26]/90 border border-blue-500/40 space-y-2 font-mono backdrop-blur-xl">
-          <div className="flex justify-between text-xs text-slate-400 font-bold">
-            <span>INGESTION STREAM CONNECTORS</span>
-            <Activity className="w-4 h-4 text-[#0088FF]" />
-          </div>
-          <div className="text-3xl font-extrabold text-white">6 LIVE STREAMS</div>
-          <div className="text-[11px] text-[#0088FF] font-bold">Encrypted TLS 1.3 Communication</div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-[#040E26]/90 border border-blue-500/40 space-y-2 font-mono backdrop-blur-xl">
-          <div className="flex justify-between text-xs text-slate-400 font-bold">
-            <span>ACTIVE AUTHENTICATED SESSIONS</span>
-            <Terminal className="w-4 h-4 text-red-400" />
-          </div>
-          <div className="text-3xl font-extrabold text-white">4 ANALYST UNITS</div>
-          <div className="text-[11px] text-red-400 font-bold">MFA Hardware Token Enforced</div>
         </div>
       </div>
 
-      {/* Main Extended Audit Log Table Container matching Screenshot */}
-      <div className="p-7 rounded-3xl bg-[#040E26]/95 border border-blue-500/40 shadow-2xl space-y-6 flex-1 min-h-[520px] backdrop-blur-xl flex flex-col justify-between">
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-blue-900/50 pb-4">
-            <h3 className="text-xl font-bold text-white tracking-tight flex items-center space-x-2">
-              <FileSpreadsheet className="w-5 h-5 text-[#0088FF]" />
-              <span>Immutable System Audit Log Table</span>
-            </h3>
+      {/* Compliance Matrix Widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-6 rounded-3xl bg-[#040E26]/90 border border-blue-500/40 shadow-2xl space-y-2 backdrop-blur-xl">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-mono">
+            <span>COMPLIANCE SCORE</span>
+            <Activity className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div className="text-3xl font-extrabold text-white font-mono">99.8%</div>
+          <p className="text-xs text-emerald-400 font-semibold">Zero unauthorized access attempts detected</p>
+        </div>
 
-            {/* Filter & Search Bar */}
-            <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
-              <div className="relative flex items-center">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Search audit logs..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  className="bg-[#081538] border border-blue-900/60 focus:border-[#0088FF] rounded-xl px-9 py-2 text-xs text-white placeholder-slate-400 focus:outline-none w-64"
-                />
-              </div>
+        <div className="p-6 rounded-3xl bg-[#040E26]/90 border border-blue-500/40 shadow-2xl space-y-2 backdrop-blur-xl">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-mono">
+            <span>STREAM CONNECTORS</span>
+            <Terminal className="w-4 h-4 text-blue-400" />
+          </div>
+          <div className="text-3xl font-extrabold text-white font-mono">6 ACTIVE</div>
+          <p className="text-xs text-blue-400 font-semibold">Real-time sync with Central Police DB & SWIFT</p>
+        </div>
 
-              <div className="flex items-center space-x-1.5">
-                <Filter className="w-4 h-4 text-slate-400" />
-                <select
-                  value={selectedActionFilter}
-                  onChange={e => setSelectedActionFilter(e.target.value)}
-                  className="bg-[#081538] border border-blue-900/60 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none"
-                >
-                  <option value="ALL">All Actions</option>
-                  <option value="GRAPH">Graph Exports</option>
-                  <option value="NLP">NLP Entity Approvals</option>
-                  <option value="CASE">Case Status</option>
-                  <option value="DOSSIER">Dossier Views</option>
-                </select>
-              </div>
-            </div>
+        <div className="p-6 rounded-3xl bg-[#040E26]/90 border border-blue-500/40 shadow-2xl space-y-2 backdrop-blur-xl">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-mono">
+            <span>ACTIVE SESSIONS</span>
+            <UserCheck className="w-4 h-4 text-purple-400" />
+          </div>
+          <div className="text-3xl font-extrabold text-white font-mono">14 ANALYSTS</div>
+          <p className="text-xs text-purple-400 font-semibold">Multi-factor encrypted session tokens active</p>
+        </div>
+      </div>
+
+      {/* Audit Log Table Container with Extended Height */}
+      <div className="p-7 sm:p-8 rounded-3xl bg-[#040E26]/90 border border-blue-500/40 shadow-2xl space-y-6 backdrop-blur-xl min-h-[520px]">
+        {/* Controls Header */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="relative w-full sm:w-80">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search user, action, target, or IP..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full bg-[#020718] border border-blue-900/50 focus:border-[#0066FF] rounded-full pl-9 pr-4 py-2 text-xs text-white placeholder-slate-400 focus:outline-none font-mono"
+            />
           </div>
 
-          {/* Table */}
-          <div className="overflow-x-auto rounded-2xl border border-blue-900/50">
-            <table className="w-full text-left font-mono text-xs">
-              <thead className="bg-[#081538] text-slate-300 uppercase text-[10px] tracking-wider border-b border-blue-900/50">
-                <tr>
-                  <th className="p-4">LOG ID</th>
-                  <th className="p-4">TIMESTAMP</th>
-                  <th className="p-4">ANALYST USER</th>
-                  <th className="p-4">ACTION</th>
-                  <th className="p-4">TARGET RESOURCE</th>
-                  <th className="p-4">IP / HOST</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-blue-900/40 bg-[#040E26]/80 text-slate-200">
-                {filteredLogs.map(log => (
-                  <tr key={log.id} className="hover:bg-blue-950/60 transition-colors">
-                    <td className="p-4 font-bold text-purple-400">{log.id}</td>
-                    <td className="p-4 text-slate-400">{log.timestamp}</td>
-                    <td className="p-4 font-bold text-white">{log.user}</td>
-                    <td className="p-4">
-                      <span className="px-2.5 py-1 rounded-md bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold text-[10px]">
-                        {log.action}
-                      </span>
-                    </td>
-                    <td className="p-4 text-slate-300 truncate max-w-xs">{log.target}</td>
-                    <td className="p-4 text-slate-400 text-[11px]">{log.ip}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex items-center space-x-3 w-full sm:w-auto justify-end font-mono text-xs">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <select
+              value={selectedActionFilter}
+              onChange={e => setSelectedActionFilter(e.target.value)}
+              className="bg-[#020718] border border-blue-900/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+            >
+              <option value="ALL">ALL ACTIONS</option>
+              <option value="GEO_SURVEILLANCE_PLAYBACK">SURVEILLANCE PLAYBACK</option>
+              <option value="NEW_CASE_PROVISION">NEW CASE PROVISION</option>
+              <option value="SYSTEM_CLEARANCE_UPDATE">CLEARANCE UPDATE</option>
+              <option value="DOSSIER_PRINT_EXPORT">DOSSIER PRINT EXPORT</option>
+              <option value="PATTERN_ANOMALY_FLAG">ANOMALY FLAG</option>
+              <option value="CDR_FILE_INGESTION">FILE INGESTION</option>
+            </select>
           </div>
         </div>
 
-        <div className="pt-3 border-t border-blue-900/40 text-right text-[11px] text-slate-400 font-mono">
-          Showing {filteredLogs.length} verified audit events · SHA-256 HMAC Encrypted
+        {/* Audit Log Table */}
+        <div className="overflow-x-auto rounded-2xl border border-blue-900/50">
+          <table className="w-full text-left text-xs border-collapse font-mono">
+            <thead>
+              <tr className="bg-[#081538] border-b border-blue-900/50 text-slate-300 uppercase tracking-wider">
+                <th className="py-3.5 px-4">EVENT ID</th>
+                <th className="py-3.5 px-4">TIMESTAMP</th>
+                <th className="py-3.5 px-4">ACTOR / ANALYST</th>
+                <th className="py-3.5 px-4">ACTION PERFORMED</th>
+                <th className="py-3.5 px-4">TARGET RESOURCE</th>
+                <th className="py-3.5 px-4 text-right">CLIENT IP</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-blue-900/40 bg-[#040E26]/80 text-slate-200">
+              {filteredLogs.map(log => (
+                <tr key={log.id} className="hover:bg-blue-950/60 transition-colors">
+                  <td className="py-4 px-4 font-bold text-blue-400">{log.id}</td>
+                  <td className="py-4 px-4 text-slate-400">{log.timestamp}</td>
+                  <td className="py-4 px-4 font-bold text-white">{log.user}</td>
+                  <td className="py-4 px-4">
+                    <span className="px-2.5 py-1 rounded-md bg-blue-950 text-blue-300 border border-blue-800 font-bold">
+                      {log.action}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 text-slate-300 font-sans">{log.target}</td>
+                  <td className="py-4 px-4 text-right text-emerald-400 font-mono font-bold">{log.ip}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
