@@ -98,18 +98,18 @@ export const TopNav: React.FC = () => {
           </div>
         </div>
 
-        {/* Top Navigation Links Bar Centered - Gradient Container with Solid Black Active Item */}
-        <nav className="hidden lg:flex items-center p-1.5 rounded-full bg-gradient-to-r from-[#FF1A4B] via-[#8B26B2] to-[#0066FF] shadow-lg shadow-purple-900/30 border border-white/20">
+        {/* Top Navigation Links Bar matching Reference Screenshot media_1787806412733.png */}
+        <nav className="hidden lg:flex items-center space-x-1 sm:space-x-1.5 bg-gradient-to-r from-[#FF003C] via-[#9000FF] to-[#0066FF] p-1.5 rounded-full shadow-2xl border border-white/20">
           {NAV_LINKS.map(link => {
             const isActive = activeSection === link.id;
             return (
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                className={`px-4 py-2 rounded-full text-xs xl:text-sm font-bold whitespace-nowrap transition-all duration-300 ease-out ${
+                className={`px-4 py-2 rounded-full text-xs xl:text-sm font-extrabold whitespace-nowrap transition-all duration-200 ease-out ${
                   isActive
-                    ? 'bg-[#08080C] text-white shadow-xl scale-[1.03] border border-white/10'
-                    : 'text-white hover:text-white hover:bg-black/20 active:scale-95'
+                    ? 'bg-black text-white shadow-xl scale-100'
+                    : 'text-white hover:bg-black/25 hover:scale-105 active:scale-95'
                 }`}
               >
                 {link.label}
