@@ -44,20 +44,22 @@ export const HeroView: React.FC = () => {
         Ingest fragmented intelligence reports, automatically extract entities, visualize relationship topologies, and detect suspicious syndicate patterns in real-time.
       </p>
 
-      {/* Extended Fluid Search Bar Pill with Fitted Text */}
-      <form onSubmit={handleSearchSubmit} className="w-full max-w-4xl sm:max-w-5xl lg:max-w-6xl relative flex items-center mb-20 shadow-2xl z-10">
-        <div className="w-full bg-[#03091B]/95 border border-blue-500/40 focus-within:border-[#0088FF] focus-within:ring-2 focus-within:ring-blue-500/30 rounded-full p-2.5 pl-6 sm:pl-8 pr-56 sm:pr-64 flex items-center shadow-2xl backdrop-blur-2xl transition-all duration-300">
-          <Search className="w-6 h-6 text-slate-400 shrink-0 mr-3.5" />
-          <input
-            type="text"
-            placeholder="Enter entity name, phone number, vehicle plate, account #..."
-            value={inputVal}
-            onChange={(e) => setInputVal(e.target.value)}
-            className="w-full bg-transparent border-none text-sm sm:text-base lg:text-lg text-white placeholder-slate-400 focus:outline-none font-sans truncate"
-          />
+      {/* Cleanly Aligned Search Bar Pill Container with Perfectly Fitted Button */}
+      <form onSubmit={handleSearchSubmit} className="w-full max-w-4xl sm:max-w-5xl lg:max-w-6xl relative z-10 mb-20 shadow-2xl">
+        <div className="w-full bg-[#03091B]/95 border border-blue-500/40 focus-within:border-[#0088FF] focus-within:ring-2 focus-within:ring-blue-500/30 rounded-full p-2 pl-6 sm:pl-8 pr-2 flex items-center justify-between shadow-2xl backdrop-blur-2xl transition-all duration-300">
+          <div className="flex items-center flex-1 mr-4 overflow-hidden">
+            <Search className="w-6 h-6 text-slate-400 shrink-0 mr-3.5" />
+            <input
+              type="text"
+              placeholder="Enter entity name, phone number, vehicle plate, account #..."
+              value={inputVal}
+              onChange={(e) => setInputVal(e.target.value)}
+              className="w-full bg-transparent border-none text-sm sm:text-base lg:text-lg text-white placeholder-slate-400 focus:outline-none font-sans truncate"
+            />
+          </div>
           <button
             type="submit"
-            className="absolute right-2 px-6 sm:px-9 py-3.5 rounded-full bg-gradient-to-r from-[#EF4444] to-[#0066FF] hover:from-[#DC2626] hover:to-[#0055DD] text-white font-bold text-sm sm:text-base shadow-xl flex items-center space-x-2 shrink-0"
+            className="px-6 sm:px-9 py-3 sm:py-3.5 rounded-full bg-gradient-to-r from-[#E85D75] via-[#A855F7] to-[#3B82F6] hover:brightness-110 text-white font-extrabold text-sm sm:text-base shadow-xl flex items-center justify-center space-x-2 shrink-0 font-sans transition-transform active:scale-95"
           >
             <span>Search Intelligence</span>
           </button>
@@ -98,10 +100,10 @@ export const HeroView: React.FC = () => {
         </p>
         <div className="flex flex-wrap items-center justify-center gap-10 sm:gap-16 opacity-70 text-lg sm:text-2xl font-bold font-mono tracking-wider text-slate-200">
           <span className="hover:text-blue-400 transition-colors">[ INTERPOL ]</span>
-          <span className="hover:text-red-400 transition-colors">[ FBI ]</span>
           <span className="hover:text-blue-400 transition-colors">[ EUROPOL ]</span>
-          <span className="hover:text-red-400 transition-colors">[ DEA_TACTICAL ]</span>
-          <span className="hover:text-blue-400 transition-colors">[ HOMELAND_SEC ]</span>
+          <span className="hover:text-blue-400 transition-colors">[ DEA CYBER ]</span>
+          <span className="hover:text-blue-400 transition-colors">[ FINCEN ]</span>
+          <span className="hover:text-blue-400 transition-colors">[ SCOTLAND YARD ]</span>
         </div>
       </div>
     </section>
