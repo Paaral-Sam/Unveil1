@@ -32,6 +32,10 @@ export const TopNav: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isUserTooltipOpen, setIsUserTooltipOpen] = useState(false);
 
+  // Auto-Hiding Navigation Bar State (Disappears on scroll down, appears when cursor moves up to top edge)
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
   // Smooth scroll handler
   const scrollToSection = (id: string) => {
     setActiveSection(id);
@@ -41,10 +45,21 @@ export const TopNav: React.FC = () => {
     }
   };
 
-  // Scroll listener to update active tab highlight automatically
+  // Scroll & Cursor Movement Listener
   useEffect(() => {
+    // 1. Reveal Navigation Bar whenever cursor moves to the top 60px of the screen
+    const handleMouseMove = (e: MouseEvent) => {
+      if (e.clientY <= 60) {
+        setIsNavVisible(true);
+      }
+    };
+
+    // 2. Hide on scroll down, show on scroll up
     const handleScroll = () => {
-      const scrollPos = window.scrollY + 140;
+      const currentScrollY = window.scrollY;
+
+      // Active Section Highlight Tracker
+      const scrollPos = currentScrollY + 140;
       for (const link of NAV_LINKS) {
         const el = document.getElementById(link.id);
         if (el) {
@@ -56,11 +71,31 @@ export const TopNav: React.FC = () => {
           }
         }
       }
+
+      // Auto-Hide / Reveal Logic
+      if (currentScrollY < 80) {
+        setIsNavVisible(true);
+      } else if (currentScrollY > lastScrollY + 8) {
+        // Scrolling down -> hide navigation bar
+        setIsNavVisible(false);
+        setIsAlertsOpen(false);
+        setIsUserTooltipOpen(false);
+      } else if (currentScrollY < lastScrollY - 8) {
+        // Scrolling up -> reveal navigation bar
+        setIsNavVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
     };
 
+    window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [lastScrollY]);
 
   // Search Results
   const searchResults = searchQuery.trim() ? entities.filter(e =>
@@ -78,7 +113,9 @@ export const TopNav: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full flex flex-col font-sans select-none bg-[#03081A]/95 border-b border-blue-900/40 backdrop-blur-xl shadow-2xl transition-all duration-300">
+    <header className={`fixed top-0 left-0 right-0 z-50 w-full flex flex-col font-sans select-none bg-[#03081A]/95 border-b border-blue-900/40 backdrop-blur-xl shadow-2xl transition-transform duration-300 ease-in-out ${
+      isNavVisible ? 'translate-y-0' : '-translate-y-full'
+    }`}>
       {/* Security Classification Header */}
       <ClassificationBanner />
 

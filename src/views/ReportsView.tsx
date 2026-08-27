@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileSpreadsheet, Download, CheckCircle2, Share2 } from 'lucide-react';
+import { FileSpreadsheet, Download, CheckCircle2, FileText } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const ReportsView: React.FC = () => {
@@ -13,98 +13,99 @@ export const ReportsView: React.FC = () => {
       setIsExporting(false);
       setExportedFormat(format);
       setTimeout(() => setExportedFormat(null), 4000);
-    }, 1500);
+    }, 1200);
   };
 
   return (
-    <div className="p-6 space-y-6 bg-unveil-mesh min-h-[calc(100vh-80px)] font-sans text-slate-100">
+    <div className="w-full bg-white p-6 lg:p-8 space-y-6 font-sans text-slate-900 rounded-3xl border border-slate-200 shadow-md animate-fade-in-up">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#282336] pb-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs text-slate-400 font-bold uppercase tracking-wider font-mono">
-            <FileSpreadsheet className="w-4 h-4 text-slate-300" />
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#0066FF] uppercase tracking-wider">
+            <FileSpreadsheet className="w-4 h-4 text-blue-600" />
             <span>INVESTIGATIVE REPORT & EVIDENCE EXPORT BUILDER</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white mt-1">
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">
             Court Intelligence Package & Evidence Brief Builder
-          </h1>
-          <p className="text-sm text-slate-400 mt-0.5">
-            Compile structured executive case briefs, key influencer network summaries, and court evidence packages
+          </h2>
+          <p className="text-sm text-slate-500 font-sans mt-0.5">
+            Compile structured executive case briefs, key influencer network summaries, and court evidence packages.
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Col: Template Selector & Export Buttons */}
-        <div className="p-6 rounded-3xl bg-[#15121C] border border-[#282336] shadow-2xl space-y-4">
-          <h3 className="text-base font-bold text-white tracking-tight">Report Export Formats</h3>
+        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+          <h3 className="text-sm font-extrabold text-slate-900 tracking-tight uppercase font-mono border-b border-slate-100 pb-2">
+            Report Export Formats
+          </h3>
 
-          <div className="space-y-3">
+          <div className="space-y-3 font-mono">
             <button
               onClick={() => handleSimulateExport('PDF')}
-              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-sm shadow-lg flex items-center justify-center space-x-2 transition-all"
+              className="w-full py-3 px-4 rounded-xl bg-[#0066FF] hover:bg-blue-500 text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 transition-all"
             >
               <Download className="w-4 h-4" />
-              <span>Export Executive Briefing (PDF)</span>
+              <span>Export Formal PDF Brief</span>
             </button>
 
             <button
               onClick={() => handleSimulateExport('CSV')}
-              className="w-full py-3 px-4 rounded-2xl bg-[#1C1826] hover:bg-[#252033] border border-[#282336] text-white font-bold text-sm shadow-lg flex items-center justify-center space-x-2 transition-all"
+              className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 transition-all"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-              <span>Export Network Graph Data (CSV)</span>
+              <Download className="w-4 h-4" />
+              <span>Export CSV Evidence Matrix</span>
             </button>
 
             <button
               onClick={() => handleSimulateExport('JSON')}
-              className="w-full py-3 px-4 rounded-2xl bg-[#1C1826] hover:bg-[#252033] border border-[#282336] text-white font-bold text-sm shadow-lg flex items-center justify-center space-x-2 transition-all"
+              className="w-full py-3 px-4 rounded-xl bg-[#040E26] hover:bg-blue-950 text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 transition-all"
             >
-              <Share2 className="w-4 h-4 text-purple-400" />
-              <span>Export Maltego / i2 Schema (JSON)</span>
+              <Download className="w-4 h-4" />
+              <span>Export i2 Analyst Notebook (JSON)</span>
             </button>
           </div>
 
           {isExporting && (
-            <div className="p-4 rounded-2xl bg-purple-950/60 border border-purple-500/40 text-xs text-purple-300 flex items-center space-x-2 font-mono">
-              <div className="w-4 h-4 rounded-full border-2 border-purple-400 border-t-transparent animate-spin" />
-              <span>Generating evidentiary report bundle...</span>
+            <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs font-mono text-blue-700 flex items-center space-x-2">
+              <div className="w-3.5 h-3.5 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+              <span>Generating evidentiary report package...</span>
             </div>
           )}
 
           {exportedFormat && (
-            <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-300 flex items-center space-x-2 font-mono">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>Report exported successfully as {exportedFormat}!</span>
+            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-mono text-emerald-700 flex items-center space-x-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Package generated! Downloaded <strong>UnVeil_{exportedFormat}_Package.zip</strong></span>
             </div>
           )}
         </div>
 
-        {/* Right 2 Cols: Report Preview Box */}
-        <div className="lg:col-span-2 p-6 rounded-3xl bg-[#15121C] border border-[#282336] shadow-2xl space-y-4">
-          <h3 className="text-base font-bold text-white tracking-tight border-b border-[#282336] pb-3">Report Document Live Preview</h3>
+        {/* Right 2 Cols: Report Preview Document */}
+        <div className="lg:col-span-2 p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <span className="text-xs font-mono font-bold text-slate-500 uppercase flex items-center space-x-2">
+              <FileText className="w-4 h-4 text-blue-600" />
+              <span>PREVIEW: COURT INTELLIGENCE BRIEF</span>
+            </span>
+            <span className="text-xs font-mono font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">
+              STATUS: READY
+            </span>
+          </div>
 
-          <div className="p-6 rounded-2xl bg-[#1C1826] border border-[#282336] space-y-4 font-mono text-xs">
-            <div className="flex justify-between text-purple-400 font-bold border-b border-[#282336] pb-2">
-              <span>UNVEIL INTELLIGENCE PACKAGE</span>
-              <span>CLASSIFICATION: RESTRICTED</span>
+          <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-800 space-y-4 leading-relaxed">
+            <div className="font-bold text-slate-900 text-sm border-b border-slate-200 pb-2">
+              CASE FILE: {currentCase?.caseNumber || 'CASE-2026-2291'} &nbsp;·&nbsp; RESTRICTED FOR COURT ADMISSIBILITY
             </div>
-
-            <div className="space-y-1">
-              <div className="text-sm font-bold text-white">CASE RECORD #{currentCase.caseNumber}: {currentCase.title}</div>
-              <div className="text-slate-400">Lead Investigator: {currentCase.leadInvestigator}</div>
+            <div>
+              <strong>Target Cell:</strong> {currentCase?.targetCell || 'Primary Cartel Cell'}<br />
+              <strong>Lead Investigator:</strong> {currentCase?.leadInvestigator}<br />
+              <strong>Summary Evidence:</strong> Ingested {entities.length} primary nodes and {relationships.length} evidentiary links.
             </div>
-
-            <div className="p-3 bg-[#15121C] rounded-xl border border-[#282336] space-y-1">
-              <div className="text-slate-300 font-bold">EXECUTIVE SUMMARY:</div>
-              <p className="text-slate-400 leading-relaxed">{currentCase.description}</p>
-            </div>
-
-            <div className="space-y-1">
-              <div className="text-slate-300 font-bold">NETWORK TOPOLOGY METRICS:</div>
-              <div className="text-slate-400">• Total Nodes: {entities.length} verified entities</div>
-              <div className="text-slate-400">• Total Edges: {relationships.length} relationship links</div>
-              <div className="text-slate-400">• Target Cell: {currentCase.targetCell}</div>
+            <div className="p-4 rounded-xl bg-white border border-slate-200 text-slate-700 space-y-1">
+              <strong className="text-slate-900">EVIDENTIARY FINDINGS:</strong>
+              <p>Primary subject Viktor Rostov linked to Elena Rostova via 48 encrypted CDR call logs and $450,000 offshore wire transfer to Chase Account #****-9921.</p>
             </div>
           </div>
         </div>

@@ -206,18 +206,18 @@ export const IngestionView: React.FC = () => {
   };
 
   return (
-    <div className="p-6 sm:p-8 space-y-8 min-h-[85vh] font-sans text-slate-100 animate-fade-in-up">
+    <div className="w-full bg-white p-6 lg:p-8 space-y-6 font-sans text-slate-900 rounded-3xl border border-slate-200 shadow-md animate-fade-in-up">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-blue-900/40 pb-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs text-emerald-400 font-bold uppercase tracking-wider font-mono">
-            <UploadCloud className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center space-x-2 text-xs text-[#0066FF] font-bold uppercase tracking-wider font-mono">
+            <UploadCloud className="w-4 h-4 text-blue-600" />
             <span>REAL DOCUMENT INGESTION & HUMAN-IN-THE-LOOP NLP REVIEW ENGINE</span>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white mt-1">
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">
             Multi-Source Intelligence Ingestion & Extraction Review
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          </h2>
+          <p className="text-sm text-slate-500 font-sans mt-0.5">
             Upload or paste real FIRs, CDR call telemetry, financial SWIFT logs, and approve AI entity extractions to merge into the main graph.
           </p>
         </div>
@@ -225,9 +225,9 @@ export const IngestionView: React.FC = () => {
         {uploadedDocumentContent && (
           <button
             onClick={() => setShowDocumentPreview(!showDocumentPreview)}
-            className="px-4 py-2 rounded-full bg-[#081538] hover:bg-blue-950 border border-blue-500/40 text-blue-300 font-bold text-xs font-mono flex items-center space-x-2 transition-all shadow-md"
+            className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-bold text-xs font-mono flex items-center space-x-2 transition-all shadow-sm"
           >
-            <Eye className="w-4 h-4 text-blue-400" />
+            <Eye className="w-4 h-4 text-blue-600" />
             <span>{showDocumentPreview ? 'Hide Document Text' : 'View Uploaded Document Text'}</span>
           </button>
         )}
@@ -235,7 +235,7 @@ export const IngestionView: React.FC = () => {
 
       {/* Feature 2-6 Pipeline Approval Success Banner */}
       {approvalToast && (
-        <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-950 via-[#041E26] to-[#081538] border-2 border-emerald-500/60 shadow-2xl space-y-3 font-sans animate-fade-in-down">
+        <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-950 via-[#041E26] to-[#081538] border-2 border-emerald-500/60 shadow-2xl space-y-3 font-sans animate-fade-in-down text-white">
           <div className="flex items-center justify-between border-b border-emerald-800/40 pb-2">
             <div className="flex items-center space-x-2 text-emerald-400 font-extrabold font-mono text-sm uppercase">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
@@ -299,7 +299,7 @@ export const IngestionView: React.FC = () => {
 
       {/* AI Document Executive Synthesis Banner */}
       {aiExecutiveSummary && (
-        <div className="p-5 rounded-3xl bg-gradient-to-r from-[#0E2A38] via-[#081538] to-[#040E26] border border-blue-500/40 shadow-2xl space-y-2 font-sans text-xs animate-fade-in-down">
+        <div className="p-5 rounded-3xl bg-gradient-to-r from-[#0E2A38] via-[#081538] to-[#040E26] border border-blue-500/40 shadow-2xl space-y-2 font-sans text-xs animate-fade-in-down text-white">
           <div className="flex items-center space-x-2 text-[#0088FF] font-bold font-mono">
             <Sparkles className="w-4 h-4 text-emerald-400" />
             <span>AI DOCUMENT INTELLIGENCE EXECUTIVE SYNTHESIS</span>
@@ -312,7 +312,7 @@ export const IngestionView: React.FC = () => {
 
       {/* Document Text Inspector Overlay */}
       {showDocumentPreview && uploadedDocumentContent && (
-        <div className="p-6 rounded-3xl bg-[#040E26] border border-blue-500/50 shadow-2xl space-y-3 font-mono text-xs animate-fade-in-down">
+        <div className="p-6 rounded-3xl bg-[#040E26] border border-blue-500/50 shadow-2xl space-y-3 font-mono text-xs animate-fade-in-down text-white">
           <div className="flex items-center justify-between border-b border-blue-900/50 pb-2">
             <span className="text-blue-400 font-bold uppercase flex items-center space-x-2">
               <FileText className="w-4 h-4" />
@@ -331,7 +331,7 @@ export const IngestionView: React.FC = () => {
       {/* Upload Box & Review Table Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 min-h-[520px]">
         {/* Left Column: Document Uploader & Paste FIR Card */}
-        <div className="p-7 sm:p-8 rounded-3xl bg-[#040E26]/90 border border-blue-500/40 shadow-2xl flex flex-col justify-between space-y-6 backdrop-blur-xl card-motion">
+        <div className="p-7 sm:p-8 rounded-3xl bg-[#040E26]/90 border border-blue-500/40 shadow-2xl flex flex-col justify-between space-y-6 backdrop-blur-xl card-motion text-white">
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white tracking-tight">Multi-Source Document Uploader</h3>
@@ -434,7 +434,7 @@ export const IngestionView: React.FC = () => {
         </div>
 
         {/* Right 2 Columns: Single Summary Record Review Table Card */}
-        <div className="lg:col-span-2 p-7 sm:p-8 rounded-3xl bg-[#040E26]/90 border border-blue-500/40 shadow-2xl flex flex-col justify-between space-y-6 backdrop-blur-xl card-motion">
+        <div className="lg:col-span-2 p-7 sm:p-8 rounded-3xl bg-[#040E26]/90 border border-blue-500/40 shadow-2xl flex flex-col justify-between space-y-6 backdrop-blur-xl card-motion text-white">
           <div className="space-y-5 flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-blue-900/40 pb-4">
               <div>
@@ -570,8 +570,8 @@ export const IngestionView: React.FC = () => {
 
       {/* FULL VERBATIM DOCUMENT PAYLOAD MODAL POPUP (matching Screenshot media_1787809513553.png) */}
       {selectedModalItem && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-          <div className="bg-[#040E26] border border-blue-500/50 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden font-sans text-slate-100 animate-scale-up">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-fade-in font-sans text-slate-100">
+          <div className="bg-[#040E26] border border-blue-500/50 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-scale-up">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-blue-900/60 flex items-center justify-between bg-[#081538]">
               <div className="flex items-center space-x-2 text-[#0088FF] font-mono text-xs font-extrabold uppercase tracking-wider">

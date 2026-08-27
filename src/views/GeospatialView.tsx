@@ -7,20 +7,13 @@ import {
   Compass,
   Navigation
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
 
 export const GeospatialView: React.FC = () => {
-  const { entities, setSelectedEntityId } = useApp();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
 
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [timelineIndex, setTimelineIndex] = useState<number>(0);
-  const [showVectors, setShowVectors] = useState<boolean>(true);
-  const [showHeatmap, setShowHeatmap] = useState<boolean>(true);
-
-  // Geo-located entities
-  const geoEntities = entities.filter(e => e.coordinates && e.coordinates.length === 2);
 
   // Time sequence events
   const movementEvents = [
@@ -38,213 +31,158 @@ export const GeospatialView: React.FC = () => {
 
     const map = L.map(mapContainerRef.current, {
       center: [40.7128, -73.98],
-      zoom: 12,
+      zoom: 11,
       zoomControl: false
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; CartoDB'
     }).addTo(map);
 
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    // Plot Movement Markers
+    movementEvents.forEach((ev) => {
+      const customIcon = L.divIcon({
+        className: 'custom-leaflet-marker',
+        html: `<div style="background-color: #0066FF; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #FFFFFF; box-shadow: 0 0 10px rgba(0,102,255,0.6);"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+
+      L.marker([ev.coords[0], ev.coords[1]], { icon: customIcon })
+        .addTo(map)
+        .bindPopup(`
+          <div style="font-family: sans-serif; font-size: 12px; color: #0F172A; padding: 4px;">
+            <strong style="color: #0066FF;">${ev.time}</strong><br/>
+            <strong>${ev.title}</strong><br/>
+            <span style="color: #64748B;">Target: ${ev.entityName}</span>
+          </div>
+        `);
+    });
+
+    // Draw Vector Path Polyline
+    const points = movementEvents.map(e => [e.coords[0], e.coords[1]] as [number, number]);
+    L.polyline(points, {
+      color: '#0066FF',
+      weight: 3,
+      dashArray: '6, 6',
+      opacity: 0.8
+    }).addTo(map);
 
     mapInstanceRef.current = map;
-
-    return () => {
-      map.remove();
-      mapInstanceRef.current = null;
-    };
   }, []);
 
-  // Update Markers & Polylines on Map
+  // Playback timer
   useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    map.eachLayer(layer => {
-      if (layer instanceof L.Marker || layer instanceof L.Polyline || layer instanceof L.Circle) {
-        map.removeLayer(layer);
-      }
-    });
-
-    if (showHeatmap) {
-      geoEntities.forEach(ent => {
-        if (!ent.coordinates) return;
-        const color = ent.threatLevel === 'CRITICAL' ? '#EF4444' : ent.threatLevel === 'HIGH' ? '#F97316' : '#A855F7';
-        L.circle(ent.coordinates as [number, number], {
-          radius: 1200,
-          color: color,
-          fillColor: color,
-          fillOpacity: 0.15,
-          weight: 1
-        }).addTo(map);
-      });
-    }
-
-    geoEntities.forEach(ent => {
-      if (!ent.coordinates) return;
-      const color = ent.threatLevel === 'CRITICAL' ? '#EF4444' : ent.threatLevel === 'HIGH' ? '#F97316' : '#A855F7';
-
-      const customIcon = L.divIcon({
-        className: 'custom-map-pin',
-        html: `
-          <div style="
-            width: 22px;
-            height: 22px;
-            background-color: ${color};
-            border: 3px solid #181520;
-            border-radius: 50%;
-            box-shadow: 0 0 15px ${color};
-            cursor: pointer;
-          "></div>
-        `,
-        iconSize: [22, 22],
-        iconAnchor: [11, 11]
-      });
-
-      const marker = L.marker(ent.coordinates as [number, number], { icon: customIcon }).addTo(map);
-
-      const popupContent = `
-        <div style="font-family: 'IBM Plex Sans', sans-serif; padding: 4px;">
-          <div style="font-weight: bold; font-size: 14px; color: #FFFFFF;">${ent.name}</div>
-          <div style="font-size: 11px; color: #A855F7; font-weight: bold; margin-top: 2px;">${ent.type.toUpperCase()}</div>
-          <div style="font-size: 11px; color: #CBD5E1; margin-top: 4px;">${ent.locationName || 'Location Logged'}</div>
-          <div style="font-size: 11px; color: #EF4444; font-weight: bold; margin-top: 4px;">Risk Score: ${ent.riskScore}/100</div>
-        </div>
-      `;
-
-      marker.bindPopup(popupContent);
-      marker.on('click', () => {
-        setSelectedEntityId(ent.id);
-      });
-    });
-
-    if (showVectors && geoEntities.length >= 2) {
-      const lineCoords = geoEntities.map(e => e.coordinates as [number, number]);
-      L.polyline(lineCoords, {
-        color: '#A855F7',
-        weight: 3,
-        dashArray: '8, 8',
-        opacity: 0.7
-      }).addTo(map);
-    }
-  }, [geoEntities, showVectors, showHeatmap]);
-
-  // Timeline Animation Effect
-  useEffect(() => {
-    let timer: ReturnType<typeof setInterval>;
+    let timer: any;
     if (isPlaying) {
       timer = setInterval(() => {
         setTimelineIndex(prev => {
           const next = (prev + 1) % movementEvents.length;
-          const evt = movementEvents[next];
           if (mapInstanceRef.current) {
-            mapInstanceRef.current.flyTo(evt.coords as [number, number], 13, { duration: 1.5 });
+            const ev = movementEvents[next];
+            mapInstanceRef.current.panTo([ev.coords[0], ev.coords[1]]);
           }
           return next;
         });
-      }, 3000);
+      }, 2000);
     }
     return () => clearInterval(timer);
   }, [isPlaying]);
 
   return (
-    <div className="p-6 space-y-6 bg-unveil-mesh min-h-[calc(100vh-80px)] font-sans text-slate-100">
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#282336] pb-4">
+    <div className="w-full bg-white p-6 lg:p-8 space-y-6 font-sans text-slate-900 rounded-3xl border border-slate-200 shadow-md animate-fade-in-up">
+      {/* Header Bar */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs text-purple-400 font-bold uppercase tracking-wider font-mono">
-            <Compass className="w-4 h-4 text-purple-400" />
-            <span>GEOSPATIAL INTELLIGENCE MAP</span>
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#0066FF] uppercase tracking-wider">
+            <Navigation className="w-4 h-4 text-blue-600" />
+            <span>GEOSPATIAL INTELLIGENCE & TELEMETRY PLAYBACK ENGINE</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white mt-1">
-            Surveillance & Movement Trajectory Playback
-          </h1>
-          <p className="text-sm text-slate-400 mt-0.5">
-            Geospatial co-location tracking, ALPR hits, and time-lapse movement playback
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">
+            Surveillance & Movement Playback
+          </h2>
+          <p className="text-sm text-slate-500 font-sans mt-0.5">
+            Plot GPS coordinates, ANPR camera plate hits, cell tower CDR pings, and geofence time sequence routes.
           </p>
         </div>
 
-        {/* Map View Controls */}
-        <div className="flex items-center space-x-3 text-xs font-mono">
+        {/* Playback Controls */}
+        <div className="flex items-center space-x-2 font-mono text-xs">
           <button
-            onClick={() => setShowHeatmap(!showHeatmap)}
-            className={`px-4 py-2 rounded-full font-bold transition-all border ${
-              showHeatmap
-                ? 'bg-purple-900/60 border-purple-500/60 text-white shadow-md'
-                : 'bg-[#15121C] border-[#282336] text-slate-400 hover:text-white'
+            onClick={() => setIsPlaying(!isPlaying)}
+            className={`px-4 py-2 rounded-xl text-white font-bold flex items-center space-x-2 shadow-md transition-all ${
+              isPlaying ? 'bg-amber-600 hover:bg-amber-500' : 'bg-[#0066FF] hover:bg-blue-500'
             }`}
           >
-            Heatmap Layer
+            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            <span>{isPlaying ? 'Pause Playback' : 'Play Movement Route'}</span>
           </button>
-
           <button
-            onClick={() => setShowVectors(!showVectors)}
-            className={`px-4 py-2 rounded-full font-bold transition-all border ${
-              showVectors
-                ? 'bg-purple-900/60 border-purple-500/60 text-white shadow-md'
-                : 'bg-[#15121C] border-[#282336] text-slate-400 hover:text-white'
-            }`}
+            onClick={() => { setTimelineIndex(0); setIsPlaying(false); }}
+            className="p-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-xl transition-colors"
+            title="Reset Route"
           >
-            Movement Vectors
+            <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Main Interactive Map Canvas Container */}
-      <div className="rounded-3xl bg-[#15121C] border border-[#282336] shadow-2xl p-4 space-y-4">
-        {/* Leaflet Map Div */}
-        <div className="w-full h-[540px] relative rounded-2xl overflow-hidden border border-[#282336]">
-          <div ref={mapContainerRef} className="w-full h-full" />
+      {/* Map Canvas & Event Inspector Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Map Container */}
+        <div className="lg:col-span-2 rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-[480px] relative bg-slate-100">
+          <div ref={mapContainerRef} className="w-full h-full z-10" />
 
-          {/* Floating Current Location Card overlay */}
-          <div className="absolute top-4 left-4 z-[1000] bg-[#181520]/90 border border-[#282336] backdrop-blur-md rounded-2xl p-4 text-xs font-mono space-y-1 shadow-2xl max-w-xs">
-            <div className="flex items-center space-x-2 text-purple-400 font-bold">
-              <Navigation className="w-4 h-4 animate-pulse" />
-              <span>ACTIVE PLAYBACK NODE</span>
+          {/* Active Playback Floating Pill */}
+          <div className="absolute top-4 left-4 z-20 p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-lg text-xs font-mono space-y-1">
+            <div className="flex items-center space-x-2 text-blue-600 font-bold">
+              <Compass className="w-4 h-4" />
+              <span>CURRENT TIMEFRAME: {movementEvents[timelineIndex].time}</span>
             </div>
-            <div className="text-sm font-bold text-white pt-1">{movementEvents[timelineIndex].title}</div>
-            <div className="text-xs text-slate-400">{movementEvents[timelineIndex].entityName}</div>
-            <div className="text-[11px] text-emerald-400 font-bold">{movementEvents[timelineIndex].time}</div>
+            <div className="font-sans text-slate-900 font-extrabold text-sm">{movementEvents[timelineIndex].title}</div>
+            <div className="text-slate-500 text-[11px]">Target: {movementEvents[timelineIndex].entityName}</div>
           </div>
         </div>
 
-        {/* Time-Slider Playback Bar */}
-        <div className="p-4 rounded-2xl bg-[#1C1826] border border-[#282336] flex items-center space-x-4">
-          <button
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-700 to-pink-600 hover:from-purple-600 hover:to-pink-500 text-white flex items-center justify-center shadow-lg shrink-0 transition-transform active:scale-95"
-          >
-            {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
-          </button>
-
-          <button
-            onClick={() => { setIsPlaying(false); setTimelineIndex(0); }}
-            className="p-2 rounded-xl bg-[#15121C] text-slate-400 hover:text-white border border-[#282336]"
-            title="Reset Timeline"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-
-          {/* Timeline Slider Steps */}
-          <div className="flex-1 space-y-1">
-            <div className="flex justify-between text-xs font-mono text-slate-400">
-              <span>{movementEvents[timelineIndex].time}</span>
-              <span>Sequence Step {timelineIndex + 1} / {movementEvents.length}</span>
+        {/* Chronological Movement Route Inspector List */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">
+              MOVEMENT SEQUENCE STEPS
             </div>
-            <input
-              type="range"
-              min={0}
-              max={movementEvents.length - 1}
-              value={timelineIndex}
-              onChange={e => {
-                setIsPlaying(false);
-                setTimelineIndex(Number(e.target.value));
-              }}
-              className="w-full h-2 bg-[#120F18] rounded-lg appearance-none cursor-pointer accent-purple-500"
-            />
+
+            <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+              {movementEvents.map((ev, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => {
+                    setTimelineIndex(idx);
+                    if (mapInstanceRef.current) {
+                      mapInstanceRef.current.panTo([ev.coords[0], ev.coords[1]]);
+                    }
+                  }}
+                  className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                    timelineIndex === idx
+                      ? 'bg-blue-50 border-[#0066FF] shadow-sm'
+                      : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-[#F8FAFC]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-xs font-mono font-bold text-blue-600">
+                    <span>STEP #{idx + 1}</span>
+                    <span>{ev.time}</span>
+                  </div>
+                  <div className="font-bold text-xs text-slate-900 mt-1">{ev.title}</div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">{ev.entityName}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 text-center text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+            CLICK STEP TO RE-CENTER MAP
           </div>
         </div>
       </div>
