@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Bell, User, Search, X, AlertCircle, LogOut } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { ClassificationBanner } from './ClassificationBanner';
 import { EntityBadge } from './EntityBadge';
 
 const NAV_LINKS = [
@@ -80,38 +79,35 @@ export const TopNav: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full flex flex-col font-sans select-none bg-[#03081A]/95 border-b border-blue-900/40 backdrop-blur-xl shadow-2xl transition-all duration-300">
-      {/* Security Classification Header */}
-      <ClassificationBanner />
-
-      {/* Main Top Header Strip Spanning Edge-to-Edge with Logo Alone on Far Left */}
-      <div className="w-full px-6 sm:px-10 lg:px-12 py-3.5 flex items-center justify-between gap-6">
-        {/* Brand Logo Alone on Left Corner */}
+    <header className="sticky top-0 z-50 w-full flex flex-col font-sans select-none bg-[#03081A] border-b border-blue-900/40 backdrop-blur-xl shadow-2xl transition-all duration-300">
+      {/* Main Top Header Strip matching media_1787822845694.png */}
+      <div className="w-full px-6 sm:px-8 lg:px-10 py-3 flex items-center justify-between gap-6">
+        {/* Left Brand Logo matching Reference Image */}
         <div
           onClick={() => scrollToSection('section-hero')}
-          className="flex items-center space-x-3.5 cursor-pointer group shrink-0"
+          className="flex items-center space-x-3 cursor-pointer group shrink-0"
         >
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#EF4444] to-[#0066FF] border border-white/20 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 group-active:scale-95 transition-transform duration-200">
-            <Shield className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 group-active:scale-95 transition-transform duration-200">
+            <Shield className="w-5.5 h-5.5 text-white" />
           </div>
           <div>
-            <h1 className="font-bold text-2xl text-white tracking-tight leading-tight group-hover:text-blue-300 transition-colors">UnVeil</h1>
-            <p className="text-xs text-[#EF4444] font-mono uppercase tracking-wider font-semibold">Intelligence</p>
+            <h1 className="font-extrabold text-xl text-white tracking-tight leading-tight group-hover:text-blue-300 transition-colors">UnVeil</h1>
+            <p className="text-[10px] text-[#EF4444] font-mono uppercase tracking-widest font-bold">INTELLIGENCE</p>
           </div>
         </div>
 
-        {/* Top Navigation Links Bar matching Reference Screenshot media_1787806412733.png */}
-        <nav className="hidden lg:flex items-center space-x-1 sm:space-x-1.5 bg-gradient-to-r from-[#FF003C] via-[#9000FF] to-[#0066FF] p-1.5 rounded-full shadow-2xl border border-white/20">
+        {/* Middle Navigation Links Bar matching Reference Image media_1787822845694.png */}
+        <nav className="hidden lg:flex items-center space-x-1 border border-blue-600/40 rounded-full px-2 py-1.5 bg-[#071330]/80 shadow-2xl">
           {NAV_LINKS.map(link => {
             const isActive = activeSection === link.id;
             return (
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                className={`px-4 py-2 rounded-full text-xs xl:text-sm font-extrabold whitespace-nowrap transition-all duration-200 ease-out ${
+                className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-bold whitespace-nowrap transition-all duration-200 ease-out ${
                   isActive
-                    ? 'bg-black text-white shadow-xl scale-100'
-                    : 'text-white hover:bg-black/25 hover:scale-105 active:scale-95'
+                    ? 'bg-gradient-to-r from-[#E85D75] via-[#A855F7] to-[#3B82F6] text-white shadow-lg scale-100'
+                    : 'text-slate-100 hover:text-white hover:bg-white/10'
                 }`}
               >
                 {link.label}
@@ -120,23 +116,23 @@ export const TopNav: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Search Input, Bell, and Single Person Icon */}
-        <div className="flex items-center space-x-3 sm:space-x-4 shrink-0">
+        {/* Right Search Input, Bell with Badge, and Gradient User Profile Icon */}
+        <div className="flex items-center space-x-3 shrink-0">
           {/* Search Bar */}
-          <div className="relative w-40 sm:w-56 lg:w-64">
+          <div className="relative w-36 sm:w-48 lg:w-56">
             <div className="relative flex items-center">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                className="w-full bg-[#020718] border border-blue-900/50 focus:border-[#0066FF] focus:ring-2 focus:ring-blue-500/30 rounded-full px-9 py-2 text-xs text-white placeholder-slate-400 focus:outline-none transition-all duration-200"
+                className="w-full bg-[#040D26] border border-blue-900/60 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 rounded-full px-9 py-1.5 text-xs text-white placeholder-slate-400 focus:outline-none transition-all duration-200 font-sans"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="absolute right-3.5 text-slate-400 hover:text-white transition-colors">
-                  <X className="w-4 h-4" />
+                <button onClick={() => setSearchQuery('')} className="absolute right-3 text-slate-400 hover:text-white transition-colors">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -164,16 +160,16 @@ export const TopNav: React.FC = () => {
             )}
           </div>
 
-          {/* AI Alert Bell */}
+          {/* AI Alert Bell matching Screenshot media_1787822845694.png */}
           <div className="relative">
             <button
               onClick={() => setIsAlertsOpen(!isAlertsOpen)}
-              className="relative p-2.5 rounded-full bg-[#020718] border border-blue-900/50 hover:border-red-500/40 text-slate-300 hover:scale-105 active:scale-95 transition-all duration-200"
+              className="relative w-9 h-9 rounded-full bg-[#040D26] border border-blue-900/60 hover:border-red-500/40 text-rose-400 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200"
               title="AI Threat Alerts"
             >
-              <Bell className="w-4.5 h-4.5 text-red-400" />
+              <Bell className="w-4 h-4 text-rose-400" />
               {patterns.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#EF4444] text-white font-mono text-xs rounded-full flex items-center justify-center font-bold animate-pulse">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#EF4444] text-white font-mono text-[10px] rounded-full flex items-center justify-center font-bold">
                   {patterns.length}
                 </span>
               )}
@@ -213,14 +209,14 @@ export const TopNav: React.FC = () => {
             )}
           </div>
 
-          {/* Single Person Icon Button with Log Out option inside modal */}
+          {/* Gradient User Profile Icon matching Screenshot media_1787822845694.png */}
           <div className="relative">
             <button
               onClick={() => setIsUserTooltipOpen(!isUserTooltipOpen)}
-              className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#EF4444] to-[#0066FF] border border-white/20 flex items-center justify-center text-white font-bold shadow-md hover:scale-110 active:scale-95 transition-all duration-200"
+              className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold shadow-md hover:scale-105 active:scale-95 transition-all duration-200"
               title="Click to view Analyst Profile & Log Out"
             >
-              <User className="w-5 h-5 text-white" />
+              <User className="w-4 h-4 text-white" />
             </button>
 
             {/* Profile Popover Modal with Log Out Option */}
