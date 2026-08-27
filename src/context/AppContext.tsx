@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Case, Entity, Relationship, NLPItem, PatternAnomaly, EntityType, AuditLog, TimelineEvent } from '../types';
 import { MOCK_CASES, MOCK_ENTITIES, MOCK_RELATIONSHIPS, MOCK_NLP_ITEMS, MOCK_PATTERNS, MOCK_AUDIT_LOGS, MOCK_TIMELINE_EVENTS } from '../mock-data';
+import { supabaseService } from '../lib/supabaseService';
+import { supabase } from '../lib/supabase';
 
 interface AppContextType {
   cases: Case[];
@@ -22,8 +24,11 @@ interface AppContextType {
   isAuthenticated: boolean;
   currentScreen: 'welcome' | 'login' | 'main';
   loginRole: 'user' | 'admin';
+  isSupabaseConnected: boolean;
+  isSupabaseModalOpen: boolean;
   
   // Actions
+  setIsSupabaseModalOpen: (open: boolean) => void;
   goToWelcome: () => void;
   goToLogin: (role?: 'user' | 'admin') => void;
   loginUser: (badgeId: string, mfaToken: string) => void;
@@ -79,7 +84,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [currentScreen, setCurrentScreen] = useState<'welcome' | 'login' | 'main'>('welcome');
   const [loginRole, setLoginRole] = useState<'user' | 'admin'>('user');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  
+
+  // Supabase Integration State
+  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState<boolean>(false);
+
   const [currentUser, setCurrentUser] = useState({
     name: 'Analyst J. Vance',
     badge: '#8804',
@@ -87,6 +95,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const currentCase = cases.find(c => c.id === currentCaseId) || cases[0];
+
+  // Fetch Live Data from Supabase Backend on Mount
+  useEffect(() => {
+    async function loadSupabaseData() {
+      const fetchedCases = await supabaseService.fetchCases();
+      if (fetchedCases && fetchedCases.length > 0) {
+        setCases(fetchedCases);
+      }
+
+      const fetchedEntities = await supabaseService.fetchEntities();
+      if (fetchedEntities && fetchedEntities.length > 0) {
+        setEntities(fetchedEntities);
+      }
+
+      const fetchedRels = await supabaseService.fetchRelationships();
+      if (fetchedRels && fetchedRels.length > 0) {
+        setRelationships(fetchedRels);
+      }
+    }
+
+    loadSupabaseData();
+
+    // Supabase Realtime Subscription for Live Updates
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'entities' }, payload => {
+        if (payload.new) {
+          const newEnt = payload.new as any;
+          setEntities(prev => {
+            if (prev.some(e => e.id === newEnt.id)) return prev;
+            return [{
+              id: newEnt.id,
+              name: newEnt.name,
+              type: newEnt.type,
+              riskScore: newEnt.risk_score || 80,
+              threatLevel: newEnt.threat_level || 'HIGH',
+              confidenceScore: newEnt.confidence_score || 95,
+              sourceTag: newEnt.source_tag || 'FIR',
+              centrality: { degree: newEnt.degree || 2, betweenness: newEnt.betweenness || 0.5, pageRank: newEnt.page_rank || 0.1 },
+              associatedCaseIds: [currentCaseId],
+              notesCount: 1
+            }, ...prev];
+          });
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentCaseId]);
 
   const goToWelcome = () => {
     setCurrentScreen('welcome');
@@ -143,9 +202,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // COMPLETE END-TO-END INTELLIGENCE PIPELINE (FEATURES 2 TO 6)
+  // COMPLETE END-TO-END INTELLIGENCE PIPELINE (FEATURES 2 TO 6) WITH SUPABASE SYNC
   const approveNLPItem = (id: string) => {
-    // 1. Mark NLP Extraction as APPROVED
     setNlpItems(prev => prev.map(item => item.id === id ? { ...item, status: 'APPROVED' } : item));
 
     const targetItem = nlpItems.find(i => i.id === id);
@@ -171,7 +229,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         threatLevel: 'CRITICAL',
         confidenceScore: 98,
         sourceTag: 'FIR',
-        // FEATURE 4: Promote to High Centrality Leader on Influencer Podium
         centrality: { degree: 18, betweenness: 0.94, pageRank: 0.18 },
         phone: '+1-555-019-4821',
         vehiclePlate: 'NY-771-X99',
@@ -318,7 +375,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     ];
 
-    // FEATURE 5: Detect Suspicious Patterns (AI Anomaly Detector)
+    // FEATURE 5: Detect Suspicious Patterns
     const newThreatPattern: PatternAnomaly = {
       id: `pat-nlp-${baseTimestamp}`,
       caseId: currentCaseId,
@@ -332,9 +389,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       evidenceSnippet: targetItem.textSnippet
     };
 
-    // FEATURE 6: Update State across all Views & Dashboard
+    // Update Local State
     setEntities(prev => {
-      // Avoid duplicate names
       const existingNames = new Set(prev.map(e => e.name.toLowerCase()));
       const filteredNew = newExtractedNodes.filter(n => !existingNames.has(n.name.toLowerCase()));
       return [...filteredNew, ...prev];
@@ -343,33 +399,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRelationships(prev => [...newExtractedLinks, ...prev]);
     setPatterns(prev => [newThreatPattern, ...prev]);
 
-    // Update Case Metadata
-    setCases(prev => prev.map(c => c.id === currentCaseId ? {
-      ...c,
-      entityCount: c.entityCount + newExtractedNodes.length,
-      relationshipCount: c.relationshipCount + newExtractedLinks.length,
-      lastUpdated: new Date().toISOString(),
-      threatLevel: 'CRITICAL'
-    } : c));
+    // Sync to Supabase Backend
+    newExtractedNodes.forEach(node => supabaseService.insertEntity(node));
+    newExtractedLinks.forEach(link => supabaseService.insertRelationship(link));
 
-    // Audit Trail Log
-    setAuditLogs(prev => [
-      {
-        id: `log-nlp-${baseTimestamp}`,
-        timestamp: new Date().toLocaleString(),
-        user: `${currentUser.name} (${currentUser.badge})`,
-        actor: currentUser.name,
-        role: currentUser.role,
-        action: 'HUMAN_IN_THE_LOOP_GRAPH_ENRICHMENT',
-        target: `${primaryName} (Merged 6 Entities & 5 Links)`,
-        resource: targetItem.sourceDocument,
-        status: 'SUCCESS',
-        ipAddress: '10.240.8.12'
-      },
-      ...prev
-    ]);
+    // Audit Trail Log & Supabase Sync
+    const newLog: AuditLog = {
+      id: `log-nlp-${baseTimestamp}`,
+      timestamp: new Date().toLocaleString(),
+      user: `${currentUser.name} (${currentUser.badge})`,
+      actor: currentUser.name,
+      role: currentUser.role,
+      action: 'HUMAN_IN_THE_LOOP_GRAPH_ENRICHMENT',
+      target: `${primaryName} (Merged 6 Entities & 5 Links)`,
+      resource: targetItem.sourceDocument,
+      status: 'SUCCESS',
+      ipAddress: '10.240.8.12'
+    };
 
-    // Select the newly approved primary entity
+    setAuditLogs(prev => [newLog, ...prev]);
+    supabaseService.insertAuditLog(newLog);
+
     setSelectedEntityId(mainSubjectId);
   };
 
@@ -390,6 +440,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addNLPItems = (newItems: NLPItem[]) => {
     setNlpItems(prev => [...newItems, ...prev]);
+    newItems.forEach(item => supabaseService.insertNLPItem(item));
   };
 
   const updatePatternStatus = (id: string, status: PatternAnomaly['status']) => {
@@ -406,10 +457,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addEntity = (newEnt: Entity) => {
     setEntities(prev => [newEnt, ...prev]);
+    supabaseService.insertEntity(newEnt);
   };
 
   const addRelationship = (newRel: Relationship) => {
     setRelationships(prev => [newRel, ...prev]);
+    supabaseService.insertRelationship(newRel);
   };
 
   const createCase = (newCaseData: Partial<Case>) => {
@@ -452,6 +505,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isAuthenticated,
       currentScreen,
       loginRole,
+      isSupabaseConnected: true,
+      isSupabaseModalOpen,
+      setIsSupabaseModalOpen,
       goToWelcome,
       goToLogin,
       loginUser,
