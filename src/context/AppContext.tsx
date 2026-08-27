@@ -42,6 +42,7 @@ interface AppContextType {
   approveNLPItem: (id: string) => void;
   rejectNLPItem: (id: string) => void;
   editNLPItem: (id: string, name: string, type: EntityType) => void;
+  addNLPItems: (newItems: NLPItem[]) => void;
   
   // Pattern Actions
   updatePatternStatus: (id: string, status: PatternAnomaly['status']) => void;
@@ -152,11 +153,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           id: `ent-nlp-${Date.now()}`,
           name: targetItem.extractedName,
           type: targetItem.extractedType,
-          riskScore: Math.floor(Math.random() * 30) + 60,
-          threatLevel: 'MEDIUM',
+          riskScore: Math.floor(Math.random() * 30) + 65,
+          threatLevel: 'HIGH',
           confidenceScore: targetItem.confidenceScore,
           sourceTag: 'FIR',
-          centrality: { degree: 1, betweenness: 0.1, pageRank: 0.01 },
+          centrality: { degree: 2, betweenness: 0.25, pageRank: 0.05 },
           associatedCaseIds: [currentCaseId],
           notesCount: 1,
           aiFlags: ['Extracted via Human-in-the-Loop Review']
@@ -179,6 +180,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       editedType: type,
       extractedType: type 
     } : item));
+  };
+
+  const addNLPItems = (newItems: NLPItem[]) => {
+    setNlpItems(prev => [...newItems, ...prev]);
   };
 
   const updatePatternStatus = (id: string, status: PatternAnomaly['status']) => {
@@ -257,6 +262,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       approveNLPItem,
       rejectNLPItem,
       editNLPItem,
+      addNLPItems,
       updatePatternStatus,
       addNoteToEntity,
       addEntity,
