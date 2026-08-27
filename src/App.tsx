@@ -15,10 +15,9 @@ import { ReportsView } from './views/ReportsView';
 import { AdminView } from './views/AdminView';
 import { LoginView } from './views/LoginView';
 import { AiCopilotSidebar } from './components/AiCopilotSidebar';
-import { SupabaseSetupModal } from './components/SupabaseSetupModal';
 
 const AppContent: React.FC = () => {
-  const { currentScreen, isAuthenticated, isSupabaseModalOpen, setIsSupabaseModalOpen } = useApp();
+  const { currentScreen, isAuthenticated } = useApp();
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
 
   // Screen 1: Editorial Welcome Page
@@ -39,9 +38,6 @@ const AppContent: React.FC = () => {
 
       {/* Interactive AI Copilot Slide-Over Sidebar */}
       <AiCopilotSidebar isOpen={isAiSidebarOpen} onClose={() => setIsAiSidebarOpen(false)} />
-
-      {/* Supabase SQL & Backend Setup Modal */}
-      <SupabaseSetupModal isOpen={isSupabaseModalOpen} onClose={() => setIsSupabaseModalOpen(false)} />
 
       {/* Main Single-Page Scroll Down Website Spanning 100% Full Viewport Width */}
       <main className="flex-1 w-full space-y-24 pb-32">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Bell, User, Search, X, AlertCircle, LogOut, Database } from 'lucide-react';
+import { Shield, Bell, User, Search, X, AlertCircle, LogOut } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ClassificationBanner } from './ClassificationBanner';
 import { EntityBadge } from './EntityBadge';
@@ -24,8 +24,7 @@ export const TopNav: React.FC = () => {
     currentUser,
     patterns,
     setSelectedEntityId,
-    logout,
-    setIsSupabaseModalOpen
+    logout
   } = useApp();
 
   const [activeSection, setActiveSection] = useState<string>('section-hero');
@@ -119,7 +118,7 @@ export const TopNav: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Search Input, Bell, Supabase Pill, and Single Person Icon */}
+        {/* Right Search Input, Bell, and Single Person Icon */}
         <div className="flex items-center space-x-3 sm:space-x-4 shrink-0">
           {/* Search Bar */}
           <div className="relative w-40 sm:w-56 lg:w-64">
@@ -162,16 +161,6 @@ export const TopNav: React.FC = () => {
               </div>
             )}
           </div>
-
-          {/* Supabase DB Backend Status & Setup Button */}
-          <button
-            onClick={() => setIsSupabaseModalOpen(true)}
-            className="px-3.5 py-2 rounded-full bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-md"
-            title="Click to view Supabase Backend & SQL Setup"
-          >
-            <Database className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline">Supabase DB</span>
-          </button>
 
           {/* AI Alert Bell */}
           <div className="relative">
