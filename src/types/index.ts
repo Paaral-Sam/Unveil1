@@ -25,7 +25,8 @@ export type SourceType =
   | 'CYBER_INTEL'
   | 'FIREWALL_LOG'
   | 'DARKNET_LEAK'
-  | 'BLOCKCHAIN_SWIFT';
+  | 'BLOCKCHAIN_SWIFT'
+  | 'OSINT_PUBLIC';
 
 export type CaseStatus = 'OPEN' | 'UNDER_INVESTIGATION' | 'CLOSED' | 'ARCHIVED';
 
@@ -157,4 +158,109 @@ export interface TimelineEvent {
   caseId?: string;
   locationName?: string;
   coordinates?: [number, number];
+}
+
+export interface OsintMatchedEntity {
+  entityId: string;
+  name: string;
+  type: EntityType;
+  matchScore: number; // 0 to 100
+}
+
+export interface OsintFinding {
+  id: string;
+  searchId?: string;
+  caseId: string;
+  query: string;
+  queryType: string;
+  title: string;
+  url: string;
+  source: string;
+  snippet: string;
+  content?: string;
+  publishedAt?: string;
+  retrievedAt: string;
+  relevanceScore: number;
+  confidenceScore: number;
+  aiSummary: string;
+  aiFlags: string[];
+  entitiesExtracted: { name: string; type: EntityType }[];
+  matchedEntities?: OsintMatchedEntity[];
+  status: 'UNREVIEWED' | 'APPROVED' | 'REJECTED';
+}
+
+export interface OsintSearch {
+  id: string;
+  caseId: string;
+  query: string;
+  queryType: string;
+  searchStatus: 'RUNNING' | 'COMPLETED' | 'FAILED';
+  resultCount: number;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface FinancialTransaction {
+  id: string;
+  caseId: string;
+  transactionId: string;
+  accountId: string;
+  accountHolder: string;
+  counterparty: string;
+  accountHolderEntityId?: string;
+  counterpartyEntityId?: string;
+  transactionType: 'TRANSFER' | 'DEPOSIT' | 'WITHDRAWAL' | 'CRYPTO_SWAP' | 'SWIFT';
+  amount: number;
+  currency: string;
+  timestamp: string;
+  location?: string;
+  merchant?: string;
+  description?: string;
+  referenceNumber?: string;
+  sourceDocument: string;
+  riskScore: number;
+  riskFlags: string[];
+  provenance: 'OBSERVED DATA' | 'AI ANALYSIS' | 'INVESTIGATOR VERIFIED';
+}
+
+export interface FinancialAccount {
+  id: string;
+  caseId: string;
+  entityId?: string;
+  accountNumberMasked: string;
+  accountType: string;
+  institution: string;
+  currency: string;
+  status: string;
+}
+
+export interface CallRecord {
+  id: string;
+  caseId: string;
+  callId: string;
+  callerEntityId?: string;
+  receiverEntityId?: string;
+  callerNumberMasked: string;
+  receiverNumberMasked: string;
+  timestamp: string;
+  durationSeconds: number;
+  callType: 'INCOMING' | 'OUTGOING' | 'MISSED' | 'SMS' | 'ENCRYPTED';
+  cellTower?: string;
+  location?: string;
+  riskScore: number;
+  riskFlags: string[];
+  sourceDocument: string;
+  provenance: 'OBSERVED DATA' | 'AI ANALYSIS' | 'INVESTIGATOR VERIFIED';
+}
+
+export interface CrossDomainCorrelation {
+  id: string;
+  caseId: string;
+  entitiesInvolved: string[];
+  timeDifferenceMinutes: number;
+  callEvidence: CallRecord;
+  financialEvidence: FinancialTransaction;
+  reason: string;
+  confidenceScore: number;
+  timestamp: string;
 }

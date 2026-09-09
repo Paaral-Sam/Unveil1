@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Bell, User, Search, X, AlertCircle, LogOut } from 'lucide-react';
+import { Shield, Bell, User, Search, X, AlertCircle, LogOut, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { EntityBadge } from './EntityBadge';
 
 const NAV_LINKS = [
   { id: 'section-overview', label: 'Overview' },
+  { id: 'section-osint', label: 'OSINT Search' },
+  { id: 'section-financial', label: 'Financial' },
+  { id: 'section-cdr', label: 'CDR Analysis' },
   { id: 'section-network', label: 'Network Graph' },
   { id: 'section-centrality', label: 'Influencers' },
   { id: 'section-patterns', label: 'AI Patterns' },
@@ -15,7 +18,7 @@ const NAV_LINKS = [
   { id: 'section-admin', label: 'Audit Logs' },
 ];
 
-export const TopNav: React.FC = () => {
+export const TopNav: React.FC<{ onToggleAiCopilot?: () => void }> = ({ onToggleAiCopilot }) => {
   const {
     entities,
     searchQuery,
@@ -79,60 +82,40 @@ export const TopNav: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full flex flex-col font-sans select-none bg-[#03081A] border-b border-blue-900/40 backdrop-blur-xl shadow-2xl transition-all duration-300">
-      {/* Main Top Header Strip */}
-      <div className="w-full px-4 sm:px-8 lg:px-10 py-3 flex items-center justify-between gap-3 sm:gap-6">
+    <header className="sticky top-0 z-50 w-full font-sans select-none bg-[#03081A] border-b border-blue-900/50 backdrop-blur-xl shadow-2xl transition-all duration-300">
+      {/* Tier 1: Primary Executive Header Bar (Visibly Taller & Larger than Tier 2 Sub-Bar) */}
+      <div className="w-full px-4 sm:px-8 lg:px-10 py-4 flex items-center justify-between gap-4 sm:gap-6 border-b border-blue-900/60">
         {/* Left Brand Logo */}
         <div
           onClick={() => scrollToSection('section-hero')}
-          className="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer group shrink-0"
+          className="flex items-center space-x-3 cursor-pointer group shrink-0"
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 group-active:scale-95 transition-transform duration-200">
-            <Shield className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-105 group-active:scale-95 transition-transform duration-200">
+            <Shield className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h1 className="font-extrabold text-lg sm:text-xl text-white tracking-tight leading-tight group-hover:text-blue-300 transition-colors">UnVeil</h1>
-            <p className="text-[9px] sm:text-[10px] text-[#EF4444] font-mono uppercase tracking-widest font-bold">INTELLIGENCE</p>
+            <h1 className="font-black text-xl sm:text-2xl text-white tracking-tight leading-none group-hover:text-blue-300 transition-colors">UnVeil</h1>
+            <p className="text-[10px] text-[#EF4444] font-mono uppercase tracking-widest font-extrabold mt-0.5">INTELLIGENCE PLATFORM</p>
           </div>
         </div>
 
-        {/* Middle Navigation Links Bar for Desktop Screens */}
-        <nav className="hidden lg:flex items-center space-x-1 border border-blue-600/40 rounded-full px-2 py-1.5 bg-[#071330]/80 shadow-2xl">
-          {NAV_LINKS.map(link => {
-            const isActive = activeSection === link.id;
-            return (
-              <button
-                key={link.id}
-                onClick={() => scrollToSection(link.id)}
-                className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-bold whitespace-nowrap transition-all duration-200 ease-out ${
-                  isActive
-                    ? 'bg-gradient-to-r from-[#E85D75] via-[#A855F7] to-[#3B82F6] text-white shadow-lg scale-100'
-                    : 'text-slate-100 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {link.label}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Right Search Input, Bell with Badge, and Gradient User Profile Icon */}
-        <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        {/* Right Search Input, Copilot Button, Bell with Badge, and User Profile Icon */}
+        <div className="flex items-center space-x-3 sm:space-x-4 shrink-0">
           {/* Search Bar */}
-          <div className="relative w-28 sm:w-48 lg:w-56">
+          <div className="relative w-44 sm:w-60 lg:w-72">
             <div className="relative flex items-center">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search entities, IPs, wallets..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                className="w-full bg-[#040D26] border border-blue-900/60 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 rounded-full pl-8 sm:pl-9 pr-3 py-1.5 text-xs text-white placeholder-slate-400 focus:outline-none transition-all duration-200 font-sans"
+                className="w-full bg-[#040D26] border border-blue-900/60 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 rounded-2xl pl-10 pr-4 py-2 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none transition-all duration-200 font-sans shadow-inner"
               />
               {searchQuery && (
                 <button onClick={() => setSearchQuery('')} className="absolute right-3 text-slate-400 hover:text-white transition-colors">
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4 h-4" />
                 </button>
               )}
             </div>
@@ -160,16 +143,26 @@ export const TopNav: React.FC = () => {
             )}
           </div>
 
+          {/* AI Copilot Header Trigger Button */}
+          <button
+            onClick={onToggleAiCopilot}
+            className="px-4 py-2 rounded-2xl bg-gradient-to-r from-purple-600 via-blue-600 to-blue-500 hover:brightness-110 text-white font-mono text-xs sm:text-sm font-extrabold shadow-lg flex items-center space-x-2 transition-all active:scale-95 shrink-0 border border-white/10"
+            title="Open UnVeil AI Copilot Tab"
+          >
+            <Sparkles className="w-4 h-4 text-white animate-pulse" />
+            <span>AI Copilot</span>
+          </button>
+
           {/* AI Alert Bell */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               onClick={() => setIsAlertsOpen(!isAlertsOpen)}
-              className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#040D26] border border-blue-900/60 hover:border-red-500/40 text-rose-400 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200"
+              className="relative w-10 h-10 rounded-2xl bg-[#040D26] border border-blue-900/60 hover:border-red-500/40 text-rose-400 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 shadow-md"
               title="AI Threat Alerts"
             >
-              <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" />
+              <Bell className="w-4 h-4 text-rose-400" />
               {patterns.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#EF4444] text-white font-mono text-[10px] rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-[#EF4444] text-white font-mono text-[10px] rounded-full flex items-center justify-center font-extrabold shadow-sm">
                   {patterns.length}
                 </span>
               )}
@@ -210,13 +203,13 @@ export const TopNav: React.FC = () => {
           </div>
 
           {/* Gradient User Profile Icon */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               onClick={() => setIsUserTooltipOpen(!isUserTooltipOpen)}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold shadow-md hover:scale-105 active:scale-95 transition-all duration-200"
+              className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#E85D75] via-[#A855F7] to-[#3B82F6] border border-white/20 flex items-center justify-center text-white font-bold shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
               title="Click to view Analyst Profile & Log Out"
             >
-              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+              <User className="w-4.5 h-4.5 text-white" />
             </button>
 
             {/* Profile Popover Modal with Log Out Option */}
@@ -254,18 +247,18 @@ export const TopNav: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Horizontal Navigation Tab Scroll Strip */}
-      <div className="flex lg:hidden overflow-x-auto space-x-1.5 px-4 py-2 border-t border-blue-900/40 bg-[#050D24] scrollbar-none">
+      {/* Tier 2: Perfectly Centered & Extended Feature Navigation Tab Bar */}
+      <div className="w-full bg-[#020718]/95 border-t border-blue-900/50 px-2 sm:px-6 py-2 flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-3 overflow-x-auto scrollbar-none">
         {NAV_LINKS.map(link => {
           const isActive = activeSection === link.id;
           return (
             <button
               key={link.id}
               onClick={() => scrollToSection(link.id)}
-              className={`px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap shrink-0 transition-all ${
+              className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs xl:text-sm font-extrabold whitespace-nowrap shrink-0 text-center transition-all duration-200 ${
                 isActive
-                  ? 'bg-gradient-to-r from-[#E85D75] via-[#A855F7] to-[#3B82F6] text-white shadow-md'
-                  : 'text-slate-300 hover:text-white bg-blue-950/40 border border-blue-900/40'
+                  ? 'bg-gradient-to-r from-[#E85D75] via-[#A855F7] to-[#3B82F6] text-white shadow-md scale-100'
+                  : 'text-slate-300 hover:text-white hover:bg-blue-950/80 border border-transparent hover:border-blue-800/40'
               }`}
             >
               {link.label}

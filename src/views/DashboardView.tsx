@@ -1,8 +1,8 @@
 import React from 'react';
-import { Sparkles, ArrowUpRight, TrendingUp, ShieldAlert, Cpu } from 'lucide-react';
+import { TrendingUp, ShieldAlert, Cpu } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
-export const DashboardView: React.FC<{ onOpenAiSidebar: () => void }> = ({ onOpenAiSidebar }) => {
+export const DashboardView: React.FC<{ onOpenAiSidebar: () => void }> = () => {
   const { cases, entities, setSelectedEntityId } = useApp();
 
   const highRiskEntities = entities.filter(e => e.threatLevel === 'CRITICAL' || e.threatLevel === 'HIGH').slice(0, 5);
@@ -38,8 +38,8 @@ export const DashboardView: React.FC<{ onOpenAiSidebar: () => void }> = ({ onOpe
         </div>
       </div>
 
-      {/* Main 4-Card Overview Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Main 3-Card Overview Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Card 1: Total Ingested Data Stat Card */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-5">
           <div className="flex items-center justify-between">
@@ -59,7 +59,7 @@ export const DashboardView: React.FC<{ onOpenAiSidebar: () => void }> = ({ onOpe
 
           <div className="space-y-2 pt-3 border-t border-slate-100 font-sans text-xs">
             <div className="flex justify-between text-slate-500">
-              <span>FIRs & Intercepts:</span>
+              <span>FIRs &amp; Intercepts:</span>
               <span className="text-slate-900 font-bold font-mono">4.2M Records</span>
             </div>
             <div className="flex justify-between text-slate-500">
@@ -73,35 +73,7 @@ export const DashboardView: React.FC<{ onOpenAiSidebar: () => void }> = ({ onOpe
           </div>
         </div>
 
-        {/* Card 2: Explore AI Insights Card */}
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-[#040E26] via-[#081538] to-[#040E26] text-white border border-blue-900 shadow-lg flex flex-col justify-between space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs font-mono text-emerald-400 font-bold uppercase">
-              <Sparkles className="w-4 h-4 text-emerald-400" />
-              <span>COPILOT AI ASSISTANT</span>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold">
-              READY
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-extrabold text-white">Explore AI Insights & Case Intelligence</h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
-              Open the AI Copilot sidebar to query document payloads, analyze SWIFT transfers, or request syndicate summaries.
-            </p>
-          </div>
-
-          <button
-            onClick={onOpenAiSidebar}
-            className="w-full py-2.5 rounded-xl bg-[#0066FF] hover:bg-blue-500 text-white font-bold text-xs font-mono flex items-center justify-center space-x-2 shadow-md transition-all"
-          >
-            <span>Open AI Copilot Sidebar</span>
-            <ArrowUpRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Card 3: Active Case Syndicate Card */}
+        {/* Card 2: Active Case Syndicate Card */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-5">
           <div className="flex items-center justify-between">
             <span className="text-sm font-extrabold text-slate-800">Active Case Target</span>
@@ -121,13 +93,13 @@ export const DashboardView: React.FC<{ onOpenAiSidebar: () => void }> = ({ onOpe
               <span className="text-slate-900 font-bold font-mono">{cases[0]?.leadInvestigator}</span>
             </div>
             <div className="flex justify-between text-slate-500">
-              <span>Entities & Links:</span>
+              <span>Entities &amp; Links:</span>
               <span className="text-emerald-600 font-bold font-mono">{entities.length} Nodes · {cases[0]?.relationshipCount || 17} Links</span>
             </div>
           </div>
         </div>
 
-        {/* Card 4: Top High Threat Targets */}
+        {/* Card 3: Top High Threat Targets */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2">
             <div className="flex items-center space-x-1.5 text-xs font-bold text-rose-600 font-mono">

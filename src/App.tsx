@@ -15,6 +15,9 @@ import { GeospatialView } from './views/GeospatialView';
 import { EntityDossierView } from './views/EntityDossierView';
 import { ReportsView } from './views/ReportsView';
 import { AdminView } from './views/AdminView';
+import { OsintView } from './views/OsintView';
+import { FinancialView } from './views/FinancialView';
+import { CdrView } from './views/CdrView';
 import { LoginView } from './views/LoginView';
 import { AiCopilotSidebar } from './components/AiCopilotSidebar';
 
@@ -36,7 +39,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-[#03050B]/90 text-slate-100 font-sans flex flex-col selection:bg-blue-600 selection:text-white animate-fade-in-up relative z-10">
       {/* Sticky Top Header spanning 100% full browser width */}
-      <TopNav />
+      <TopNav onToggleAiCopilot={() => setIsAiSidebarOpen(prev => !prev)} />
 
       {/* Interactive AI Copilot Slide-Over Sidebar */}
       <AiCopilotSidebar isOpen={isAiSidebarOpen} onClose={() => setIsAiSidebarOpen(false)} />
@@ -53,6 +56,21 @@ const AppContent: React.FC = () => {
           {/* Section 2: Overview & 4-Card Metric Grid */}
           <section id="section-overview" className="scroll-mt-28 w-full">
             <DashboardView onOpenAiSidebar={() => setIsAiSidebarOpen(true)} />
+          </section>
+
+          {/* Section: OSINT Open-Source Intelligence Explorer */}
+          <section id="section-osint" className="scroll-mt-28 w-full">
+            <OsintView />
+          </section>
+
+          {/* Section: Financial Intelligence / Transaction Analysis */}
+          <section id="section-financial" className="scroll-mt-28 w-full">
+            <FinancialView />
+          </section>
+
+          {/* Section: Call Detail Record (CDR) Analysis */}
+          <section id="section-cdr" className="scroll-mt-28 w-full">
+            <CdrView />
           </section>
 
           {/* Section 3: Data Ingestion & Human-in-the-Loop Review */}

@@ -1,0 +1,9 @@
+call_id,case_id,caller_entity_id,receiver_entity_id,caller_number_masked,receiver_number_masked,timestamp,duration_seconds,call_type,cell_tower,location,source_document
+CALL-2001,case-2291,ent-1,ent-2,+91-98****-1234,+91-98****-5678,2026-08-27T10:02:00Z,420,OUTGOING,TOWER-CHN-021,Chennai Pier 42 Terminal,cdr_case2291.csv
+CALL-2002,case-2291,ent-2,ent-3,+91-98****-5678,+91-98****-9988,2026-08-27T10:35:00Z,180,OUTGOING,TOWER-SGP-009,Singapore Financial District,cdr_case2291.csv
+CALL-2003,case-2291,ent-1,ent-13,+91-98****-1234,185.220.101.45,2026-08-27T12:15:00Z,15,ENCRYPTED,TOWER-BER-104,Berlin C2 Hub,cdr_case2291.csv
+CALL-2004,case-2291,ent-1,ent-13,+91-98****-1234,185.220.101.45,2026-08-27T12:17:00Z,8,ENCRYPTED,TOWER-BER-104,Berlin C2 Hub,cdr_case2291.csv
+CALL-2005,case-2291,ent-1,ent-13,+91-98****-1234,185.220.101.45,2026-08-27T12:18:00Z,12,ENCRYPTED,TOWER-BER-104,Berlin C2 Hub,cdr_case2291.csv
+CALL-2006,case-2291,ent-1,ent-13,+91-98****-1234,185.220.101.45,2026-08-27T12:20:00Z,6,ENCRYPTED,TOWER-BER-104,Berlin C2 Hub,cdr_case2291.csv
+CALL-2007,case-2291,ent-4,ent-1,+91-98****-4411,+91-98****-1234,2026-08-27T13:58:00Z,240,INCOMING,TOWER-MUM-088,Mumbai Port Terminal,cdr_case2292.csv
+CALL-2008,case-2291,ent-1,ent-5,+91-98****-1234,+91-98****-8821,2026-08-27T16:15:00Z,600,OUTGOING,TOWER-ZUR-002,Zürich Vault Center,cdr_case2292.csv

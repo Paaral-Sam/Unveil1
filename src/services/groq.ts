@@ -1,6 +1,4 @@
-const GROQ_API_KEY =
-  (import.meta as any).env?.VITE_GROQ_API_KEY ||
-  (typeof process !== 'undefined' ? process.env?.VITE_GROQ_API_KEY : '');
+const GROQ_API_KEY = (import.meta as any).env?.VITE_GROQ_API_KEY || '';
 
 // 1. Live Chat Copilot with Groq Llama-3 70B
 export async function askGroqCopilot(
@@ -19,7 +17,7 @@ export async function askGroqCopilot(
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama3-70b-8192',
         messages: [
           {
             role: 'system',
@@ -73,7 +71,7 @@ export async function extractEntitiesWithGroq(rawDocumentText: string): Promise<
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama3-70b-8192',
         messages: [
           {
             role: 'system',

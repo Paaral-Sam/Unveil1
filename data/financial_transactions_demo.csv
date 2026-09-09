@@ -1,0 +1,9 @@
+transaction_id,case_id,account_id,account_holder,counterparty,transaction_type,amount,currency,timestamp,location,merchant,description,reference_number,source_document
+TXN-1001,case-2291,ACC-1029,Viktor Rostov,Elena Rostova,TRANSFER,850000,INR,2026-08-27T10:17:00Z,Chennai,Apex Overseas,Business consultancy wire transfer,REF-99210-AX,financial_report_001.pdf
+TXN-1002,case-2291,ACC-1029,Viktor Rostov,Chase Cayman #9921,TRANSFER,1250000,INR,2026-08-27T11:05:00Z,Grand Cayman,Grand Cayman Pool,Offshore liquidity pool wire,REF-99211-AX,financial_report_001.pdf
+TXN-1003,case-2291,ACC-4081,Elena Rostova,Apex Global Holdings Ltd,TRANSFER,820000,INR,2026-08-27T11:45:00Z,Singapore,Apex Global,Corporate dividend distribution,REF-99212-AX,financial_report_001.pdf
+TXN-1004,case-2291,ACC-9912,Apex Global Holdings Ltd,0x71C765f928...49A,CRYPTO_SWAP,950000,INR,2026-08-27T12:30:00Z,Dubai,Tornado Cash Mixer,USDT Tether wallet liquidity swap,REF-99213-AX,financial_report_001.pdf
+TXN-1005,case-2291,ACC-5510,Arjun Mehta,Viktor Rostov,TRANSFER,9800,INR,2026-08-27T14:01:00Z,Mumbai,Local Branch,Structured cash transfer fragment 1,REF-99214-AX,financial_report_002.csv
+TXN-1006,case-2291,ACC-5510,Arjun Mehta,Viktor Rostov,TRANSFER,9500,INR,2026-08-27T14:03:00Z,Mumbai,Local Branch,Structured cash transfer fragment 2,REF-99215-AX,financial_report_002.csv
+TXN-1007,case-2291,ACC-5510,Arjun Mehta,Viktor Rostov,TRANSFER,9900,INR,2026-08-27T14:06:00Z,Mumbai,Local Branch,Structured cash transfer fragment 3,REF-99216-AX,financial_report_002.csv
+TXN-1008,case-2291,ACC-8821,Dmitri Volkov,Chase Cayman #9921,TRANSFER,3500000,INR,2026-08-27T16:20:00Z,Zürich,Swiss Private Vault,High value dormant account reactivation wire,REF-99217-AX,financial_report_003.csv
